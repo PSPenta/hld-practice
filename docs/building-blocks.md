@@ -29,7 +29,7 @@ The reusable infrastructure pieces you place on an HLD board. Know **when** to u
 Maps hostnames to IPs (and often to load balancers).
 
 - **Routing policies:** simple, weighted, latency-based, geo, failover
-- **Interview use:** multi-region entry, blue/green or canary via weighted records
+- **Interview use:** multi-region / failover; *optionally* weighted DNS for coarse blue/green or canary (prefer LB/mesh for fast rollback — see [Deployment strategies](./deployment-and-ops.md#deployment-strategies))
 - **Watch out:** TTL vs failover speed; clients cache DNS
 
 ## CDN (Content Delivery Network)

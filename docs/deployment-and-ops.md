@@ -58,13 +58,15 @@ Related: **service mesh** (Istio/Linkerd) for mTLS, retries, traffic split — o
 | Strategy | How it works | Pros | Cons |
 |----------|--------------|------|------|
 | **Recreate** | Kill old, start new | Simple | Downtime |
-| **Rolling** | Replace pods gradually | No downtime; default in K8s | Mixed versions briefly |
-| **Blue/Green** | Two full envs; flip traffic | Instant rollback | 2× resources |
-| **Canary** | Send small % to new version | Low blast radius | Needs good metrics |
-| **Shadow / dark** | Copy traffic to new (no user impact) | Safe validation | Complexity; no user-visible bugs only |
-| **Feature flags** | Deploy dark; toggle per user | Decouple deploy from release | Flag debt |
+| **Rolling** | Replace instances gradually | No downtime; K8s default | Mixed versions briefly |
+| **Blue/Green** (= **Red/Black**) | Two full envs; flip all traffic | Instant rollback | ~2× resources |
+| **Canary** | Small % → new version, then ramp | Low blast radius | Needs good metrics |
+| **Shadow / dark** | Mirror traffic to new (users stay on old) | Safe validation | Extra cost; won’t catch all UX bugs |
+| **Feature toggle** | Ship code dark; flag on/off per user/cohort | Deploy ≠ release | Flag debt / cleanup |
 
-Tie to NFRs: payments → prefer canary + fast rollback; internal tools → rolling is fine.
+**Where traffic flips (not only DNS):** LB / Ingress / service mesh / API gateway weight rules (usual) · **DNS weighted records** (coarse; TTL slows rollback) · feature flag inside the app (no traffic split needed).
+
+Tie to NFRs: payments → canary + fast rollback; internal tools → rolling is fine.
 
 ---
 
