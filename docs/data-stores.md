@@ -6,6 +6,19 @@ Choosing where data lives: transactional DBs, analytics, time series, and AI ret
 
 ---
 
+## Index
+
+- [ACID vs BASE](#acid-vs-base)
+- [SQL vs NoSQL](#sql-vs-nosql)
+- [OLTP vs OLAP](#oltp-vs-olap)
+- [TiDB (distributed SQL) vs TSDB (time-series DB)](#tidb-distributed-sql-vs-tsdb-time-series-db)
+- [Downsampling](#downsampling)
+- [Knowledge base vs Vector DB](#knowledge-base-vs-vector-db)
+- [LSM trees (storage engine)](#lsm-trees-storage-engine)
+- [Quick chooser](#quick-chooser)
+
+---
+
 ## ACID vs BASE
 
 | | **ACID** (classic RDBMS) | **BASE** (many distributed NoSQL designs) |

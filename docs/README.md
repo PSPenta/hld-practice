@@ -2,6 +2,15 @@
 
 Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fintech like Razorpay). The [root README](../README.md) stays light; depth lives here.
 
+## Index
+
+- [How to use this](#how-to-use-this)
+- [Curriculum (grouped)](#curriculum-grouped)
+- [Format convention (all docs)](#format-convention-all-docs)
+- [Staff / SDE3 bar (self-check)](#staff-sde3-bar-self-check)
+
+---
+
 ## How to use this
 
 1. Skim the README checklist until you can run a round without notes.
@@ -61,8 +70,9 @@ Each doc follows:
 
 1. **Title** + one-line purpose  
 2. **Nav** — `← README` · links to related docs / diagrams  
-3. **Sections** — concept → comparison table → when to use → interview pitfalls  
-4. **See also** — cross-links (no orphan topics)
+3. **Index** — linked list of `##` sections at the top of multi-topic docs  
+4. **Sections** — concept → comparison table → when to use → interview pitfalls  
+5. **See also** — cross-links (no orphan topics)
 
 If something feels like a “random glossary dump,” it belongs in the curriculum group above, not a new top-level README bullet.
 

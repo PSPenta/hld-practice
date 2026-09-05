@@ -6,6 +6,17 @@ How you ship and run systems: containers, orchestration, release strategies, and
 
 ---
 
+## Index
+
+- [Docker](#docker)
+- [Kubernetes (K8s)](#kubernetes-k8s)
+- [Deployment strategies](#deployment-strategies)
+- [Monitoring: Prometheus & Grafana](#monitoring-prometheus-grafana)
+- [SLIs, SLOs, SLAs (ops vocabulary)](#slis-slos-slas-ops-vocabulary)
+- [Other ops prerequisites](#other-ops-prerequisites)
+
+---
+
 ## Docker
 
 Packages app + dependencies into an **image**; runs as a **container**.

@@ -6,6 +6,16 @@ How you grow past one box — and how you split data without creating hot spots.
 
 ---
 
+## Index
+
+- [Horizontal scaling: what are you scaling against?](#horizontal-scaling-what-are-you-scaling-against)
+- [Partitioning vs sharding](#partitioning-vs-sharding)
+- [Consistent hashing (quick)](#consistent-hashing-quick)
+- [Read replicas vs sharding](#read-replicas-vs-sharding)
+- [Stateless vs stateful horizontal scale](#stateless-vs-stateful-horizontal-scale)
+
+---
+
 ## Horizontal scaling: what are you scaling against?
 
 “Add more machines” only helps if you know the **bottleneck**.

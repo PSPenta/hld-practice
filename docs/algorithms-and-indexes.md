@@ -6,6 +6,16 @@ Probabilistic structures, geo indexes, **proximity search**, and hashing vs encr
 
 ---
 
+## Index
+
+- [Bloom filters](#bloom-filters)
+- [Hashing vs encryption](#hashing-vs-encryption)
+- [Geo-spatial indexes](#geo-spatial-indexes)
+- [Proximity search (“nearby”)](#proximity-search-nearby)
+- [Other index / structure prerequisites](#other-index-structure-prerequisites)
+
+---
+
 ## Bloom filters
 
 **Probabilistic set:** “Is element *possibly* in the set?”

@@ -6,6 +6,27 @@ Ideas interviewers expect you to **apply** when comparing designs. Prefer concre
 
 ---
 
+## Index
+
+- [CAP and PACELC (practical view)](#cap-and-pacelc-practical-view)
+- [Consistency models](#consistency-models)
+- [ACID vs BASE](#acid-vs-base)
+- [CRDT (Conflict-free Replicated Data Type)](#crdt-conflict-free-replicated-data-type)
+- [Idempotency](#idempotency)
+- [Optimistic locking & versioning](#optimistic-locking-versioning)
+- [Latency vs throughput](#latency-vs-throughput)
+- [Availability & failure modes](#availability-failure-modes)
+- [Partitioning & hot keys](#partitioning-hot-keys)
+- [Rate limiting](#rate-limiting)
+- [Backpressure](#backpressure)
+- [Circuit breaker](#circuit-breaker)
+- [Security basics (HLD depth)](#security-basics-hld-depth)
+- [Fan-out on write vs read](#fan-out-on-write-vs-read)
+- [Sync vs async](#sync-vs-async)
+- [How to talk about trade-offs](#how-to-talk-about-trade-offs)
+
+---
+
 ## CAP and PACELC (practical view)
 
 **CAP:** in a partition, you choose between **consistency** and **availability** (you always want partition tolerance in distributed systems).

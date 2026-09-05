@@ -6,6 +6,22 @@ HLD rounds grade how you **collaborate and narrate**, not only whether the boxes
 
 ---
 
+## Index
+
+- [Drive the conversation](#drive-the-conversation)
+- [State assumptions explicitly](#state-assumptions-explicitly)
+- [Prefer simple, then scale the bottleneck](#prefer-simple-then-scale-the-bottleneck)
+- [Compare two options, then commit](#compare-two-options-then-commit)
+- [Use the board clearly](#use-the-board-clearly)
+- [Handle pushback well](#handle-pushback-well)
+- [Time management](#time-management)
+- [SDE3 / Staff communication bar](#sde3-staff-communication-bar)
+- [Language that scores](#language-that-scores)
+- [Language that hurts](#language-that-hurts)
+- [Practice drill](#practice-drill)
+
+---
+
 ## Drive the conversation
 
 You are the pilot. A good default loop:

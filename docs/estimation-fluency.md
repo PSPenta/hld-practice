@@ -6,6 +6,21 @@ Back-of-the-envelope math so your design fits the scale you claimed. Interviewer
 
 ---
 
+## Index
+
+- [Why estimate?](#why-estimate)
+- [Useful constants (memorize these)](#useful-constants-memorize-these)
+- [Traffic: DAU → QPS](#traffic-dau-qps)
+- [Storage growth](#storage-growth)
+- [Bandwidth](#bandwidth)
+- [Cache sizing](#cache-sizing)
+- [Servers / capacity (rough)](#servers-capacity-rough)
+- [Time to fill / drain queues](#time-to-fill-drain-queues)
+- [Worked mini-examples](#worked-mini-examples)
+- [How to present estimates in a round](#how-to-present-estimates-in-a-round)
+
+---
+
 ## Why estimate?
 
 Estimates justify:

@@ -6,6 +6,19 @@ Staff-level designs talk about **what “good” means**, how you fail, and how 
 
 ---
 
+## Index
+
+- [SLI, SLO, SLA](#sli-slo-sla)
+- [Error budgets](#error-budgets)
+- [Failure modes checklist](#failure-modes-checklist)
+- [Blast radius](#blast-radius)
+- [Load shedding & graceful degradation](#load-shedding-graceful-degradation)
+- [Multi-AZ vs multi-region](#multi-az-vs-multi-region)
+- [Backpressure](#backpressure)
+- [Reliability in fintech (Razorpay-class)](#reliability-in-fintech-razorpay-class)
+
+---
+
 ## SLI, SLO, SLA
 
 | Term | Meaning | Example |

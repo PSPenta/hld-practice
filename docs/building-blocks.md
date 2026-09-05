@@ -6,6 +6,24 @@ The reusable infrastructure pieces you place on an HLD board. Know **when** to u
 
 ---
 
+## Index
+
+- [DNS](#dns)
+- [CDN (Content Delivery Network)](#cdn-content-delivery-network)
+- [Load balancer (LB)](#load-balancer-lb)
+- [Reverse proxy & API gateway](#reverse-proxy-api-gateway)
+- [Stateless app servers](#stateless-app-servers)
+- [Caching (Redis / Memcached)](#caching-redis-memcached)
+- [Databases](#databases)
+- [Object storage (S3-style)](#object-storage-s3-style)
+- [Message queues & streams](#message-queues-streams)
+- [Search engines](#search-engines)
+- [Real-time delivery](#real-time-delivery)
+- [Observability stack](#observability-stack)
+- [How to pick components in an interview](#how-to-pick-components-in-an-interview)
+
+---
+
 ## DNS
 
 Maps hostnames to IPs (and often to load balancers).

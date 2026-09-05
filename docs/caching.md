@@ -6,6 +6,18 @@ Caching is easy to draw and easy to get wrong. Interviewers probe **failures and
 
 ---
 
+## Index
+
+- [Quick recap of patterns](#quick-recap-of-patterns)
+- [Cache stampede (a.k.a. dogpile / thundering herd)](#cache-stampede-aka-dogpile-thundering-herd)
+- [Cache avalanche](#cache-avalanche)
+- [Cache penetration](#cache-penetration)
+- [Cache invalidation](#cache-invalidation)
+- [Eviction policies](#eviction-policies)
+- [Other cache topics worth knowing](#other-cache-topics-worth-knowing)
+
+---
+
 ## Quick recap of patterns
 
 | Pattern | Idea |

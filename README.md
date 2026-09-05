@@ -4,6 +4,22 @@ Interview-oriented **High-Level Design** notes and Excalidraw diagrams for **SDE
 
 Open files under [`diagrams/`](./diagrams) with the [Excalidraw extension](https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor) (recommended via [`.vscode/`](./.vscode) when you open this repo). Full study path: [`docs/README.md`](./docs/README.md).
 
+## Index
+
+| Section | What you’ll find |
+|---------|------------------|
+| [What is HLD?](#what-is-hld) | Definition and artifacts |
+| [HLD vs LLD](#hld-vs-lld) | Scope and granularity |
+| [What does the interviewer evaluate?](#what-does-the-interviewer-evaluate) | Mid/Senior vs Staff bar |
+| [How a typical HLD round runs](#how-a-typical-hld-round-runs) | 45–60 min timeline |
+| [Standard approach (checklist)](#standard-approach-checklist) | End-to-end design steps |
+| [Prerequisites (grouped)](#prerequisites-grouped) | Links into [`docs/`](./docs/README.md) |
+| [Quick references (YouTube)](#quick-references-youtube) | Deep dives & walkthrough playlists |
+| [How to practice](#how-to-practice) | Using diagrams in this repo |
+| [Popular HLDs](#popular-hlds) | Catalog ✅/❌ + folder links |
+
+**Docs curriculum:** [docs/README.md](./docs/README.md) (study order A→E). Each long doc has its own **Index** at the top.
+
 ---
 
 ## What is HLD?
@@ -94,6 +110,18 @@ Don’t learn as a flat list — follow the curriculum in [`docs/README.md`](./d
 | **Data & messaging** | [Data stores](./docs/data-stores.md) · [Caching](./docs/caching.md) · [Messaging & pipelines](./docs/messaging-and-pipelines.md) · [Algorithms & indexes](./docs/algorithms-and-indexes.md) |
 | **Reliability & correctness** | [Distributed coordination](./docs/distributed-coordination.md) · [Reliability & SLOs](./docs/reliability-and-slos.md) · [Security & compliance](./docs/security-and-compliance.md) |
 | **Delivery** | [Deployment & ops](./docs/deployment-and-ops.md) |
+
+---
+
+## Quick references (YouTube)
+
+| Playlist | Link |
+|----------|------|
+| Deep Dives | [Playlist](https://www.youtube.com/playlist?list=PL5q3E8eRUieUHnsz0rh0W6AzwdVJBwEK6) |
+| System Design Walkthroughs | [Playlist](https://www.youtube.com/playlist?list=PL5q3E8eRUieWtYLmRU3z94-vGRcwKr9tM) |
+| System Design Interview Questions | [Playlist](https://www.youtube.com/playlist?list=PLPtUyMfD0mNJDZg50fg2CptjLBavHot47) |
+
+Use alongside timed redesigns — watch a walkthrough, then redraw from scratch without pausing.
 
 ---
 

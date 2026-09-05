@@ -6,6 +6,17 @@ How systems move data asynchronously: queues, streams, logs, and processors.
 
 ---
 
+## Index
+
+- [Pub/Sub vs Message Queue](#pubsub-vs-message-queue)
+- [Kafka vs RabbitMQ vs SQS](#kafka-vs-rabbitmq-vs-sqs)
+- [Write-ahead log (WAL) & MySQL binlog](#write-ahead-log-wal-mysql-binlog)
+- [CDC (Change Data Capture)](#cdc-change-data-capture)
+- [Event aggregator (Spark) vs Stream aggregator (Flink)](#event-aggregator-spark-vs-stream-aggregator-flink)
+- [Related patterns (also prerequisites)](#related-patterns-also-prerequisites)
+
+---
+
 ## Pub/Sub vs Message Queue
 
 | | **Message queue** | **Pub/Sub** |

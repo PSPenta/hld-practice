@@ -6,6 +6,15 @@ Transport and video delivery choices that show up in chat, live, and VOD designs
 
 ---
 
+## Index
+
+- [TCP vs UDP](#tcp-vs-udp)
+- [HLS vs DASH](#hls-vs-dash)
+- [RTMP vs SRT](#rtmp-vs-srt)
+- [Related networking prerequisites](#related-networking-prerequisites)
+
+---
+
 ## TCP vs UDP
 
 | | **TCP** | **UDP** |

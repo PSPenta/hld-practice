@@ -6,6 +6,18 @@ Race conditions, multi-step workflows, and consensus — when “just write to t
 
 ---
 
+## Index
+
+- [Race conditions](#race-conditions)
+- [Distributed transactions](#distributed-transactions)
+- [Two-phase commit (2PC) & 3PC](#two-phase-commit-2pc-3pc)
+- [Saga](#saga)
+- [Raft (consensus)](#raft-consensus)
+- [ZooKeeper / etcd / Consul (coordination services)](#zookeeper-etcd-consul-coordination-services)
+- [Other coordination prerequisites](#other-coordination-prerequisites)
+
+---
+
 ## Race conditions
 
 **What:** Outcome depends on timing of concurrent operations (two bookers, one seat).

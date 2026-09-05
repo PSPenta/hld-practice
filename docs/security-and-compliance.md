@@ -6,6 +6,19 @@ Enough security architecture for HLD rounds — especially **payments / fintech 
 
 ---
 
+## Index
+
+- [Authn vs Authz](#authn-vs-authz)
+- [Tokens & sessions](#tokens-sessions)
+- [Transport & data protection](#transport-data-protection)
+- [Secrets & least privilege](#secrets-least-privilege)
+- [PCI-DSS mindset (payments interviews)](#pci-dss-mindset-payments-interviews)
+- [Threat modeling (lightweight STRIDE)](#threat-modeling-lightweight-stride)
+- [Abuse & fraud controls](#abuse-fraud-controls)
+- [Privacy](#privacy)
+
+---
+
 ## Authn vs Authz
 
 | | **Authentication (authn)** | **Authorization (authz)** |
