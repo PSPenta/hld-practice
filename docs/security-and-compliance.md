@@ -34,11 +34,15 @@ Service-to-service: network policy + **mTLS** / SPIFFE-style identity when asked
 
 ## Tokens & sessions
 
-- **JWT access tokens** — short-lived; refresh rotation; know revocation limits (blocklist / short TTL)  
-- **Server sessions** — easy revoke; needs shared store  
-- **API keys** — merchants/partners; hash at rest; rotate; scoped  
+| | **Token (e.g. JWT)** | **Server session** |
+|--|----------------------|--------------------|
+| State | Client holds claims (often stateless at app) | Server (or Redis) holds session |
+| Revoke | Hard (wait TTL, or blocklist) | Easy (`DELETE` session) |
+| Scale | Easy horizontally | Needs shared session store |
+| Size / exposure | Keep access token short-lived + minimal claims | Cookie id only; data stays server-side |
+| Typical | APIs, mobile, microservices | Web apps, instant logout |
 
-Don’t store raw refresh tokens or PANs in logs.
+Also: **refresh tokens** (rotate, store hashed); **API keys** for merchants (scoped, rotatable).
 
 ---
 

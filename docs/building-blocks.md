@@ -34,11 +34,13 @@ Maps hostnames to IPs (and often to load balancers).
 
 ## CDN (Content Delivery Network)
 
-Caches static (and sometimes dynamic) content at edge PoPs close to users.
+Caches content at edge PoPs close to users.
 
-- **Good for:** images, JS/CSS, videos, public API responses with cache headers
-- **Benefits:** lower latency, offloads origin, absorbs some traffic spikes
-- **Watch out:** cache invalidation, personalized content, signed URLs for private media
+- **Usual:** images, JS/CSS, videos, static pages (rarely change)
+- **Also possible:** cacheable **GET** API responses via `Cache-Control` / TTL (public, same for many users, staleness OK)
+- **Avoid at CDN:** private/per-user data, POSTs, strong freshness needs
+- **CDN vs Redis:** CDN = HTTP edge, global, URL-keyed · Redis = app cache, regional, explicit keys / fine invalidation · often **both** (CDN outside, Redis at origin)
+- **Watch out:** invalidation, `Vary`/auth mistakes, signed URLs for private media
 
 ## Load balancer (LB)
 

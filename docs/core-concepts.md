@@ -19,6 +19,7 @@ Ideas interviewers expect you to **apply** when comparing designs. Prefer concre
 - [Partitioning & hot keys](#partitioning-hot-keys)
 - [Rate limiting](#rate-limiting)
 - [Backpressure](#backpressure)
+- [Exponential backoff](#exponential-backoff)
 - [Circuit breaker](#circuit-breaker)
 - [Security basics (HLD depth)](#security-basics-hld-depth)
 - [Fan-out on write vs read](#fan-out-on-write-vs-read)
@@ -104,12 +105,22 @@ Useful for profiles, carts, concurrent editors (with more advanced CRDT/OT for G
 
 ## Latency vs throughput
 
-- **Latency** — time for one request (care about **p50 / p95 / p99**, not only average)
-- **Throughput** — requests or bytes per second the system sustains
+| | **Latency** | **Throughput** |
+|--|-------------|----------------|
+| Meaning | Time for **one** request | Work per second (QPS / bytes/s) |
+| Quote | **p50 / p95 / p99** (not only avg) | Sustained and peak QPS |
+| Trade-off | Batching ↑ throughput, often ↑ latency | More parallelism can ↑ both until a bottleneck |
 
-Tuning often trades one for the other (batching raises throughput, can raise latency).
+**Also talk about (latency family)**
 
-State targets early: e.g. “search p99 &lt; 200ms”, “autocomplete p99 &lt; 50ms”.
+- **Tail latency (p99/p999)** — what users feel under load; outliers matter  
+- **Cold vs warm** — cold cache / cold start / cold connection ≫ warm path  
+- **Queueing delay** — when utilization is high, wait time dominates (shed load / scale)  
+- **Fan-out** — parallel calls ≈ slowest dependency; serial calls add up  
+- **Bandwidth ≠ latency** — fat pipe can still be high RTT  
+- **Consistency vs latency** — sync replication / cross-region adds RTT ([PACELC](#cap-and-pacelc-practical-view))
+
+State targets early: e.g. search p99 &lt; 200ms; autocomplete p99 &lt; 50ms.
 
 ## Availability & failure modes
 
@@ -151,6 +162,14 @@ When consumers are slow, don’t let unbounded queues melt memory.
 - Limit queue depth; shed load; slow producers
 - Autoscale workers from lag metrics
 - Prefer fail-fast over silent infinite buffering
+
+## Exponential backoff
+
+Retry transient failures with growing delay: `min(cap, base × 2^n) + jitter`.
+
+- Stops synchronized retry storms; always **cap attempts**
+- Only on **idempotent** operations (or with idempotency keys)
+- Full write-up: [Reliability — Exponential backoff](./reliability-and-slos.md#exponential-backoff)
 
 ## Circuit breaker
 

@@ -14,6 +14,7 @@ Staff-level designs talk about **what “good” means**, how you fail, and how 
 - [Blast radius](#blast-radius)
 - [Load shedding & graceful degradation](#load-shedding-graceful-degradation)
 - [Multi-AZ vs multi-region](#multi-az-vs-multi-region)
+- [Exponential backoff](#exponential-backoff)
 - [Backpressure](#backpressure)
 - [Reliability in fintech (Razorpay-class)](#reliability-in-fintech-razorpay-class)
 
@@ -104,6 +105,48 @@ Prefer controlled degradation over uncontrolled collapse.
 **Active-active:** write locally, conflict rules / CRDTs / regional keys (harder).
 
 State **RPO** (data loss tolerance) and **RTO** (time to recover) when DR comes up.
+
+---
+
+## Exponential backoff
+
+Retry transient failures with **increasing delay** so a sick dependency isn’t hammered by synchronized clients.
+
+### Formula (typical)
+
+```text
+delay = min(cap, base * 2^attempt) + random_jitter
+```
+
+Example: base 100ms → 100, 200, 400, 800… capped at e.g. 30s, with **full or equal jitter**.
+
+| Idea | Why |
+|------|-----|
+| **Exponential** | Space out retries as failure persists |
+| **Cap (max delay)** | Bound worst-case wait |
+| **Max attempts** | Then fail / DLQ / alert — don’t retry forever |
+| **Jitter** | Break thundering herds when many clients retry together |
+| **Idempotent ops only** | Retries on non-idempotent charges → double pay |
+
+### When to use
+
+- HTTP 429 / 503, timeouts, connection resets  
+- Queue consumers after transient broker/DB errors  
+- Webhook delivery to merchants  
+
+### When **not** to blind-retry
+
+- **4xx** (except 408/429) — fix the request  
+- Unknown payment outcome without idempotency key — reconcile, don’t spam authorize  
+- After circuit breaker **open** — wait for half-open, don’t keep backing off into a black hole  
+
+### Pair with
+
+- **Timeouts** (fail fast per attempt)  
+- **Circuit breaker** (stop calling when error rate is high) — see [Core concepts](./core-concepts.md#circuit-breaker)  
+- **DLQ** after N failures — see [Messaging](./messaging-and-pipelines.md)  
+
+**Interview line:** “Retries with exponential backoff **and jitter**; idempotent; capped attempts; then DLQ.”
 
 ---
 

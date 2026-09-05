@@ -53,7 +53,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 | Doc | Why |
 |-----|-----|
 | [Distributed coordination](./distributed-coordination.md) | Races, 2PC/3PC, Saga, Raft, quorum |
-| [Reliability & SLOs](./reliability-and-slos.md) | SLI/SLO/SLA, error budget, multi-region, blast radius |
+| [Reliability & SLOs](./reliability-and-slos.md) | SLI/SLO/SLA, error budget, multi-region, blast radius, **exponential backoff** |
 | [Security & compliance](./security-and-compliance.md) | Authn/z, PCI-DSS, secrets, threat model (fintech bar) |
 
 ### E. Delivery & operations
