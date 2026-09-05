@@ -130,6 +130,7 @@ Each diagram folder contains:
 | URL Shortener | ❌ | — |
 | Rate Limiter | ❌ | — |
 | Uber / Ride Sharing | ❌ | — |
+| Proximity Search / Nearby | ❌ | — ([notes](./docs/algorithms-and-indexes.md#proximity-search-nearby)) |
 | YouTube / Video Streaming | ❌ | — |
 | Dropbox / File Storage | ❌ | — |
 | Google Docs / Collaborative Editor | ❌ | — |

@@ -1,6 +1,6 @@
 # Algorithms, Indexes & Crypto Basics
 
-Probabilistic structures, geo indexes, and the hashing vs encryption distinction.
+Probabilistic structures, geo indexes, **proximity search**, and hashing vs encryption.
 
 ← [README](../README.md) · [Docs index](./README.md)
 
@@ -46,7 +46,7 @@ Probabilistic structures, geo indexes, and the hashing vs encryption distinction
 
 ## Geo-spatial indexes
 
-Location queries: “restaurants within 2 km”, “drivers near rider.”
+Building blocks for location encoding — used heavily by **proximity search** (next section).
 
 ### Geohash
 
@@ -69,12 +69,83 @@ Location queries: “restaurants within 2 km”, “drivers near rider.”
 - **Pros:** exact queries, rich predicates, joins  
 - **Cons:** heavier ops; scale with read replicas / careful indexing; not always for ultra-hot driver location fan-in (often Redis geo + DB for durable)
 
-**Interview pattern (Uber-like):**
+### Quadtree / R-tree (concepts)
 
-1. Update driver location in **Redis GEO / H3 sets** (hot path)  
-2. Query candidates in cell / radius  
-3. Exact haversine filter  
-4. Persist trips / history in **Postgres + PostGIS** (or similar)
+- **Quadtree** — recursively split space into 4; good mental model for “points in bounding box”
+- **R-tree / GiST** — what many DB geo indexes use under the hood for rectangles/points
+
+---
+
+## Proximity search (“nearby”)
+
+**Problem:** given a location (and optional filters), return the closest / in-radius entities — restaurants, drivers, ATMs, stores.
+
+Common prompts: *Yelp nearby*, *Uber matching*, *Find friends nearby*.
+
+### Requirements to clarify
+
+| Ask | Why it changes the design |
+|-----|---------------------------|
+| Static POIs vs moving objects? | Places ≈ infrequent updates; drivers ≈ high write QPS |
+| Radius vs “top-K nearest”? | Bounding box / cells vs expand rings until K |
+| Freshness of location? | TTL, last-seen, stale drivers |
+| Filters? | Open now, cuisine, rating, availability |
+| Scale | City vs global; QPS of search vs location updates |
+
+### API sketch
+
+```text
+GET /nearby?lat=&lng=&radius_m=2000&type=restaurant&limit=20
+GET /drivers/nearby?lat=&lng=&limit=10   // or internal match RPC
+POST /locations  { entityId, lat, lng, timestamp }
+```
+
+### Core algorithm (interview flow)
+
+1. **Index** each entity by cell (geohash / H3) or Redis GEO  
+2. On query, compute **center cell + neighbors** (k-ring) covering the radius  
+3. Fetch **candidates** in those cells (optionally pre-filtered by type)  
+4. **Exact distance** (haversine / geodesic) → sort → take top-K  
+5. Apply business filters; paginate if needed  
+
+Never return raw cell results without an exact distance pass (edge errors).
+
+### Hot path vs durable store
+
+| Tier | Role |
+|------|------|
+| **Redis GEO / memory grid (H3 sets)** | Live locations, low-latency nearby |
+| **Postgres + PostGIS / Elastic geo** | POI catalog, rich filters, analytics |
+| **Object / CDN** | Map tiles (not the search index) |
+
+**Uber-like live matching**
+
+1. Drivers ping location → write Redis (and optionally async durable log)  
+2. Rider request → nearby candidates in cells → rank (distance, ETA, rating) → offer  
+3. Persist trip / history in OLTP DB  
+
+**Yelp-like POI search**
+
+1. Index places in Elastic (`geo_point`) or PostGIS  
+2. `geo_distance` / bounding box + text filters + ranking  
+3. Cache popular “downtown + pizza” style queries carefully (key = geohash prefix + filters)
+
+### Deep-dive topics (Staff)
+
+- **Cell size vs radius** — too coarse → huge candidate sets; too fine → many neighbor cells  
+- **Edge cases** — geohash borders; always include neighbors  
+- **Moving objects** — write amplification; shard Redis by region/city  
+- **Load at city center** — hot geohash; shard or local denser resolution  
+- **Privacy** — fuzz location; don’t leak precise coords of users  
+- **Consistency** — “driver shown” may have moved; re-check at match time  
+
+### Vs full-text / vector search
+
+| | Proximity | Keyword / vector |
+|--|-----------|------------------|
+| Primary signal | Distance / ETA | Text relevance / embedding similarity |
+| Index | Geo cells, GEO, R-tree | Inverted index, ANN |
+| Often combined | “Thai near me” = geo filter **then** text/rank (or vice versa) | — |
 
 ---
 

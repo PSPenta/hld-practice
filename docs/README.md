@@ -37,7 +37,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 | [Data stores](./data-stores.md) | ACID/BASE, SQL/NoSQL, OLAP, TiDB/TSDB, LSM, Vector DB |
 | [Caching](./caching.md) | Stampede, avalanche, penetration, invalidation, eviction |
 | [Messaging & pipelines](./messaging-and-pipelines.md) | Queue vs pub/sub, Kafka/Rabbit/SQS, WAL, CDC, Spark/Flink |
-| [Algorithms & indexes](./algorithms-and-indexes.md) | Bloom, geo (H3/geohash/PostGIS), hash vs encrypt |
+| [Algorithms & indexes](./algorithms-and-indexes.md) | Bloom, geo, **proximity search**, hash vs encrypt |
 
 ### D. Reliability & correctness (Staff differentiator)
 
