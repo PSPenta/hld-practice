@@ -10,6 +10,8 @@ How systems move data asynchronously: queues, streams, logs, and processors.
 
 - [Pub/Sub vs Message Queue](#pubsub-vs-message-queue)
 - [Kafka vs RabbitMQ vs SQS](#kafka-vs-rabbitmq-vs-sqs)
+- [AWS Kinesis](#aws-kinesis)
+- [Lambda vs Kappa architecture](#lambda-vs-kappa-architecture)
 - [Write-ahead log (WAL) & MySQL binlog](#write-ahead-log-wal-mysql-binlog)
 - [CDC (Change Data Capture)](#cdc-change-data-capture)
 - [Event aggregator (Spark) vs Stream aggregator (Flink)](#event-aggregator-spark-vs-stream-aggregator-flink)
@@ -50,6 +52,47 @@ Hybrid products exist (SNS→SQS, Kafka consumer groups). In interviews, pick ba
 Also know: **visibility timeout** (SQS), **exchanges/bindings** (Rabbit), **topics / partitions / consumer groups** (Kafka).
 
 See [Distributed Queue](../diagrams/distributed-queue/distributed-queue.excalidraw).
+
+---
+
+## AWS Kinesis
+
+Managed **streaming** on AWS (closest cousin to Kafka, not to SQS).
+
+| Piece | Role |
+|-------|------|
+| **Data Streams** | Sharded append log; producers → shards → consumers (apps / Lambda / Firehose) |
+| **Firehose** | Managed delivery to S3 / Redshift / OpenSearch (batch flush) |
+| **Data Analytics** | SQL on streams (less common in interviews now) |
+
+**vs Kafka:** same idea (shards ≈ partitions, retention, replay). Kinesis = less ops, AWS-native, shard scaling / throughput limits to plan; Kafka / MSK = more control, richer ecosystem (Connect, exact consumer-group patterns).
+
+**vs SQS:** Kinesis = ordered stream + multiple consumers + replay; SQS = task queue, delete-on-ack, no real replay.
+
+**Interview use:** logging/metrics ingest, clickstream, CDC fan-out on AWS → Flink/Spark/Lambda/S3.
+
+---
+
+## Lambda vs Kappa architecture
+
+How you build analytics / derived views from events (Nathan Marz / Jay Kreps ideas).
+
+| | **Lambda** | **Kappa** |
+|--|------------|-----------|
+| Idea | **Speed layer** (realtime) + **batch layer** (correct/rebuild) + serve | **One** streaming pipeline; recompute by **replaying the log** |
+| Batch | Periodic Spark/MapReduce over full history | Optional; prefer replay on stream system |
+| Complexity | Two code paths to keep in sync | One code path; needs strong log + replay |
+| When | Heavy historical recompute, batch already exists | Log-centric (Kafka/Kinesis), stream processor can redo |
+
+```text
+Lambda:  events → stream speed path
+              ↘ batch over lake → merge at serve
+
+Kappa:   events → durable log → stream job (replay to fix / backfill)
+```
+
+**Pick Kappa** if Kafka/Kinesis + Flink/Spark Structured Streaming can own both realtime and recompute.  
+**Pick Lambda** if you already have a lake/warehouse batch world and a separate low-latency path.
 
 ---
 
