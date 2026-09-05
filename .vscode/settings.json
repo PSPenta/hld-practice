@@ -1,0 +1,8 @@
+{
+  "workbench.editorAssociations": {
+    "*.excalidraw": "editor.excalidraw",
+    "*.excalidraw.json": "editor.excalidraw",
+    "*.excalidraw.svg": "editor.excalidraw",
+    "*.excalidraw.png": "editor.excalidraw"
+  }
+}
