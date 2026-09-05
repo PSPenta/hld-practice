@@ -44,16 +44,85 @@ Caches content at edge PoPs close to users.
 
 ## Load balancer (LB)
 
-Distributes traffic across healthy backend instances.
+Spreads traffic across **healthy** backends so no single instance is the bottleneck. See [Load Balancer diagram](../diagrams/load-balancer-hld/load-balancer-hld.excalidraw).
 
-| Type | Works at | Typical use |
-|------|----------|-------------|
-| **L4** | IP / TCP / UDP | High throughput, simple forwarding |
-| **L7** | HTTP path, headers, host | Path-based routing, sticky sessions, TLS terminate |
+### Where it sits
 
-Common strategies: round-robin, least connections, weighted, sticky (session affinity).
+```text
+Client → DNS → (CDN) → Load Balancer → App / API servers → Cache / DB / …
+                    ↑
+         often TLS terminates here (L7) or passes through (L4)
+```
 
-Pair with **health checks** so bad instances leave the pool. See also the [Load Balancer diagram](../diagrams/load-balancer-hld/load-balancer-hld.excalidraw).
+- **Internet-facing LB:** public entry to your fleet (AWS ALB/NLB, GCP LB, nginx/HAProxy).  
+- **Internal LB:** service-to-service or between tiers (app → worker pool).  
+- **DNS** points at the LB (or Anycast IP), not at individual app VMs.  
+- App instances register into a **target group / pool**; LB only sends traffic to **passing health checks**.
+
+### How it works (loop)
+
+1. Client opens connection to LB VIP.  
+2. LB picks a backend by **algorithm** + pool membership.  
+3. Forwards bytes (L4) or HTTP request (L7); may add headers (`X-Forwarded-For`).  
+4. Continuously **health-checks** backends (TCP ping or `GET /health`).  
+5. Unhealthy → removed from pool; recovered → re-added.  
+6. Optional: **sticky** sessions, draining on deploy, connection limits.
+
+### L4 vs L7
+
+| | **L4 (transport)** | **L7 (application)** |
+|--|--------------------|----------------------|
+| Sees | IP, TCP/UDP port, connection | HTTP/gRPC: path, host, headers, method, sometimes body |
+| Routing | Per connection / 5-tuple | Per request: `/api` vs `/static`, `Host`, cookies |
+| TLS | Often pass-through (or TCP TLS) | Commonly **terminates TLS**, may re-encrypt to backend |
+| Performance | Very high QPS / low overhead | More CPU (parse HTTP, TLS) |
+| Visibility | Blind to URLs / APIs | Rich routing, WAF-ish rules, auth at edge (light) |
+| Examples | NLB, L4 HAProxy, LVS | ALB, nginx, Envoy, Cloudflare |
+
+**Neither is universally “better.”**
+
+| Need | Prefer |
+|------|--------|
+| Raw TCP/UDP, extreme throughput, WebSockets/MQTT at scale, DB proxies | **L4** |
+| Path-/host-based routing, canary by header, TLS offload, HTTP retries | **L7** |
+| Simple “spread load across identical app replicas” | Either; **L7** if HTTP APIs, **L4** if opaque TCP |
+| gRPC / HTTP2 multiplexing awareness | **L7** (L4 only balances connections, not streams) |
+
+**Common pattern:** L4 (or DNS/Anycast) at the outer edge for sheer volume → L7 inside for HTTP routing — or one L7 internet LB if scale fits.
+
+### Balancing algorithms
+
+| Algorithm | Idea | Use when |
+|-----------|------|----------|
+| **Round-robin** | Rotate backends | Similar instance size, short requests |
+| **Least connections** | Prefer least busy | Long-lived or uneven requests |
+| **Weighted** | Bigger boxes get more traffic | Mixed instance sizes / canary weights |
+| **Sticky (affinity)** | Same client → same backend (cookie / IP hash) | In-memory sessions (prefer externalize session to Redis instead) |
+| **Least response time** | Prefer faster backends | Heterogeneous latency |
+
+### Health checks & failure
+
+- **Shallow:** TCP accept / ping — fast, misses “app dead but port open”.  
+- **Deep:** HTTP `/health` or `/ready` — checks deps carefully (don’t fail all nodes if one shared DB blips unless intended).  
+- On deploy: **connection draining** — stop new traffic, finish in-flight.  
+- LB itself is critical → run **HA pair** or managed multi-AZ LB.
+
+### LB vs reverse proxy vs API gateway
+
+| Role | Focus |
+|------|--------|
+| **LB** | Distribute to many identical (or pooled) backends |
+| **Reverse proxy** | TLS, buffering, routing (often *is* your L7 LB: nginx/Envoy) |
+| **API gateway** | Product edge: auth, rate limit, API keys, route to *different* services |
+
+In interviews you can draw one box “LB / Gateway” then clarify L4 vs L7 if asked.
+
+### Interview pitfalls
+
+- Sticky sessions as a default → scales poorly; store session in Redis.  
+- No health checks → LB keeps hitting dead nodes.  
+- Single LB AZ → regional outage.  
+- L4 in front of HTTP canaries that need path/header split → won’t work; need L7 or mesh.
 
 ## Reverse proxy & API gateway
 
