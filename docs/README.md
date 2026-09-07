@@ -28,7 +28,8 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 |-----|-----|
 | [Soft skills](./soft-skills.md) | Narrative, trade-offs, Staff-level leadership signals |
 | [Estimation fluency](./estimation-fluency.md) | Justify every box with order-of-magnitude math |
-| Root [README — standard approach](../README.md#standard-approach-use-this-checklist) | Round structure |
+| [Prep plan (daily / weekly)](./prep-plan.md) | DSA + LLD + HLD schedule (11:00–21:00) |
+| Root [README — standard approach](../README.md#standard-approach-checklist) | Round structure |
 
 ### B. Foundation (draw the boxes)
 

@@ -17,6 +17,7 @@ Open files under [`diagrams/`](./diagrams) with the [Excalidraw extension](https
 | [Quick references (YouTube)](#quick-references-youtube) | Deep dives & walkthrough playlists |
 | [How to practice](#how-to-practice) | Using diagrams in this repo |
 | [Popular HLDs](#popular-hlds) | Catalog ✅/❌ + folder links |
+| [Prep plan](./docs/prep-plan.md) | Daily/weekly DSA · LLD · HLD schedule |
 
 **Docs curriculum:** [docs/README.md](./docs/README.md) (study order A→E). Each long doc has its own **Index** at the top.
 
@@ -105,7 +106,7 @@ Don’t learn as a flat list — follow the curriculum in [`docs/README.md`](./d
 
 | Group | Docs |
 |-------|------|
-| **Interview craft** | [Soft skills](./docs/soft-skills.md) · [Estimation](./docs/estimation-fluency.md) |
+| **Interview craft** | [Soft skills](./docs/soft-skills.md) · [Estimation](./docs/estimation-fluency.md) · [Prep plan](./docs/prep-plan.md) |
 | **Foundation** | [Building blocks](./docs/building-blocks.md) · [Service architecture](./docs/service-architecture.md) · [Core concepts](./docs/core-concepts.md) · [Scaling](./docs/scaling.md) · [Networking & media](./docs/networking-and-media.md) |
 | **Data & messaging** | [Data stores](./docs/data-stores.md) · [Caching](./docs/caching.md) · [Messaging & pipelines](./docs/messaging-and-pipelines.md) · [Algorithms & indexes](./docs/algorithms-and-indexes.md) |
 | **Reliability & correctness** | [Distributed coordination](./docs/distributed-coordination.md) · [Reliability & SLOs](./docs/reliability-and-slos.md) · [Security & compliance](./docs/security-and-compliance.md) |
