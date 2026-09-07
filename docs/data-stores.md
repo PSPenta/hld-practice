@@ -15,6 +15,7 @@ Choosing where data lives: transactional DBs, analytics, time series, and AI ret
 - [Downsampling](#downsampling)
 - [Knowledge base vs Vector DB](#knowledge-base-vs-vector-db)
 - [LSM trees (storage engine)](#lsm-trees-storage-engine)
+- [DB deployment strategies](#db-deployment-strategies)
 - [Quick chooser](#quick-chooser)
 
 ---
@@ -154,6 +155,41 @@ Contrast **B-tree** (inplace, InnoDB): better point/range reads in place; random
 **Interview line:** write-heavy wide-column / TSDB → LSM; classic OLTP relational → B-tree (often).
 
 More index types: [Algorithms & indexes](./algorithms-and-indexes.md).
+
+---
+
+## DB deployment strategies
+
+### Single region vs multi-region
+
+| | **Single region (multi-AZ)** | **Multi-region** |
+|--|----------------------------|------------------|
+| Protects | AZ / box failure | Region disaster; closer reads for global users |
+| Latency | Low inside region | Cross-region RTT on sync paths |
+| Complexity | Baseline for prod | Replication lag, conflict, failover runbooks |
+| Default interview | Start here | Only if NFR needs global latency or low RPO/RTO across regions |
+
+### Replication in multi-region
+
+| Mode | Behavior | Trade-off |
+|------|----------|-----------|
+| **Async primary → replicas** | Fast writes locally; replicas lag | Possible data loss on primary region loss (RPO &gt; 0) |
+| **Semi-sync / sync** | Wait for remote ack | Higher write latency; stronger durability |
+| **Active-passive** | One writer region; others read / standby | Simpler failover |
+| **Active-active** | Writes in multiple regions | Conflicts — need keys-by-region, CRDTs, or conflict rules |
+| **Read replicas regional** | Local reads, central writes | Stale reads; great for read-heavy global apps |
+
+State **RPO/RTO** when you draw multi-region DB. Detail: [Reliability — multi-region](./reliability-and-slos.md#multi-az-vs-multi-region).
+
+### Read-heavy vs write-heavy
+
+| Workload | Deploy moves |
+|----------|----------------|
+| **Read-heavy** | Cache → **read replicas** (same or other regions) → CDN for public GETs → consider CQRS/read models |
+| **Write-heavy** | Batch/async where possible → partition/shard on write key → LSM/wide-column if fit → avoid sync cross-region on every write |
+| **Read + write both hot** | Split paths: sync write to primary; async CDC to read stores; don’t force one DB shape for both |
+
+**Connection note:** every replica and every service/worker pool multiplies connections — use a pooler; see [Service architecture](./service-architecture.md#db-connections-services-vs-workers).
 
 ---
 

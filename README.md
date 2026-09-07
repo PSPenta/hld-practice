@@ -106,7 +106,7 @@ Don’t learn as a flat list — follow the curriculum in [`docs/README.md`](./d
 | Group | Docs |
 |-------|------|
 | **Interview craft** | [Soft skills](./docs/soft-skills.md) · [Estimation](./docs/estimation-fluency.md) |
-| **Foundation** | [Building blocks](./docs/building-blocks.md) · [Core concepts](./docs/core-concepts.md) · [Scaling](./docs/scaling.md) · [Networking & media](./docs/networking-and-media.md) |
+| **Foundation** | [Building blocks](./docs/building-blocks.md) · [Service architecture](./docs/service-architecture.md) · [Core concepts](./docs/core-concepts.md) · [Scaling](./docs/scaling.md) · [Networking & media](./docs/networking-and-media.md) |
 | **Data & messaging** | [Data stores](./docs/data-stores.md) · [Caching](./docs/caching.md) · [Messaging & pipelines](./docs/messaging-and-pipelines.md) · [Algorithms & indexes](./docs/algorithms-and-indexes.md) |
 | **Reliability & correctness** | [Distributed coordination](./docs/distributed-coordination.md) · [Reliability & SLOs](./docs/reliability-and-slos.md) · [Security & compliance](./docs/security-and-compliance.md) |
 | **Delivery** | [Deployment & ops](./docs/deployment-and-ops.md) |

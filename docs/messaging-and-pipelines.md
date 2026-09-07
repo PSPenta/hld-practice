@@ -45,11 +45,11 @@ Hybrid products exist (SNS→SQS, Kafka consumer groups). In interviews, pick ba
 
 **Rule of thumb**
 
-- Fire-and-forget jobs, minimal ops → **SQS** (+ DLQ)
-- Routing keys, priorities, traditional messaging → **RabbitMQ**
-- High volume, order by key, multiple consumers, replay → **Kafka**
+- **SQS** — simple **work queue** (not pub/sub): one message → one worker; similar jobs; AWS-native; + DLQ. For pub/sub use **SNS→SQS**.
+- **RabbitMQ** — complex routing (exchanges/keys), priorities, delay/retry patterns; classic task messaging.
+- **Kafka** — high volume, **per-key order**, **replay**, **many consumer groups** on same log (CDC, analytics, event bus).
 
-Also know: **visibility timeout** (SQS), **exchanges/bindings** (Rabbit), **topics / partitions / consumer groups** (Kafka).
+**Cost / ops (rough):** SQS simplest (fully managed). RabbitMQ medium (Amazon MQ or self-host). Kafka highest complexity/cost at scale — but **MSK / Confluent** means it’s not always “self-managed.” Pick on **replay / fan-out / routing needs**, not cost alone.
 
 See [Distributed Queue](../diagrams/distributed-queue/distributed-queue.excalidraw).
 
