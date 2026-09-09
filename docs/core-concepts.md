@@ -15,6 +15,7 @@ Ideas interviewers expect you to **apply** when comparing designs. Prefer concre
 - [Idempotency](#idempotency)
 - [Optimistic locking & versioning](#optimistic-locking-versioning)
 - [Latency vs throughput](#latency-vs-throughput)
+- [Latency & metrics vocabulary](#latency-metrics-vocabulary)
 - [Availability & failure modes](#availability-failure-modes)
 - [Partitioning & hot keys](#partitioning-hot-keys)
 - [Rate limiting](#rate-limiting)
@@ -121,6 +122,53 @@ Useful for profiles, carts, concurrent editors (with more advanced CRDT/OT for G
 - **Consistency vs latency** — sync replication / cross-region adds RTT ([PACELC](#cap-and-pacelc-practical-view))
 
 State targets early: e.g. search p99 &lt; 200ms; autocomplete p99 &lt; 50ms.
+
+## Latency & metrics vocabulary
+
+The notation everyone uses without defining it.
+
+| Term | Meaning |
+|------|---------|
+| **p50 (median)** | Half of requests are faster than this |
+| **p95 / p99** | 95% / 99% of requests finish under this value |
+| **p99.9 / p99.99** | The far tail; needs high traffic to measure meaningfully |
+| **Tail latency** | The slow end (p99+) — what users complain about |
+| **QPS / RPS / TPS** | Queries / requests / transactions per second |
+| **Goodput** | Useful throughput, excluding retries and errors |
+
+**Why not the average**
+
+99 requests at 10ms + 1 request at 10s → mean ≈ 110ms. Looks healthy; one user waited 10 seconds. Quote percentiles, never only the mean.
+
+**Tail at scale (the important one)**
+
+If a request fans out to 100 dependencies, each with p99 = 100ms, then P(all fast) = 0.99¹⁰⁰ ≈ **37%**. So ~63% of requests hit at least one slow call — your p99 becomes the median user's experience.
+
+Mitigations: hedged requests, aggressive timeouts, partial responses, fewer serial hops.
+
+**Percentiles don't add or average**
+
+- Can't average p99 across servers to get fleet p99
+- Can't add p99 of two services to get end-to-end p99
+- Need **histograms** (why Prometheus stores buckets + `histogram_quantile`)
+
+**Little's Law** — `concurrency = arrival rate × latency`
+
+5,000 rps × 200ms = **1,000 in-flight requests**. Use it to size thread pools, connection pools, and worker counts on the whiteboard.
+
+**Utilization vs latency**
+
+Queueing delay grows ~`ρ/(1−ρ)`, so latency explodes non-linearly near saturation — 70% → 90% busy roughly triples wait time. Keep steady-state utilization ~70–80%. "Spare CPU" ≠ "spare latency budget".
+
+**Availability nines**
+
+| Target | Downtime / year |
+|--------|-----------------|
+| 99.9% | ~8.8 hours |
+| 99.95% | ~4.4 hours |
+| 99.99% | ~53 minutes |
+
+**Incident timing** — **MTTD** (detect), **MTTR** (recover), **MTBF** (between failures); plus **RPO / RTO** for DR ([Reliability](./reliability-and-slos.md)).
 
 ## Availability & failure modes
 
