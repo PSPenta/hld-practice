@@ -1,5 +1,5 @@
-﻿# BookMyShow / Ticket Booking
+# BookMyShow / Ticket Booking
 
-[← Back to repo](../../README.md) · [Edit diagram](./bookmyshow-hld.excalidraw) · [SVG](./bookmyshow-hld.svg)
+[? Back to repo](../../README.md) � [Edit diagram](./bookmyshow-hld.excalidraw)
 
 ![BookMyShow / Ticket Booking](./bookmyshow-hld.png)

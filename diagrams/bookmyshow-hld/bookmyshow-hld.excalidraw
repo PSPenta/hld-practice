@@ -3096,8 +3096,8 @@
         "type": 2
       },
       "seed": 855790811,
-      "version": 790,
-      "versionNonce": 1708970517,
+      "version": 791,
+      "versionNonce": 698990440,
       "isDeleted": false,
       "boundElements": [
         {
@@ -3115,9 +3115,13 @@
         {
           "id": "xGvp8yZ5BnSMNsqnzrRsF",
           "type": "arrow"
+        },
+        {
+          "id": "kAwS4m4NWUeM8bD9pk5LD",
+          "type": "arrow"
         }
       ],
-      "updated": 1789050377652,
+      "updated": 1789052983943,
       "link": null,
       "locked": false
     },
@@ -3514,8 +3518,8 @@
       "type": "arrow",
       "x": 2141.4155406879327,
       "y": 2305.19147843144,
-      "width": 348.5126628310486,
-      "height": 208.99200192005355,
+      "width": 270.7106310855406,
+      "height": 222.0954967747216,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -3531,8 +3535,8 @@
         "type": 2
       },
       "seed": 942739227,
-      "version": 2571,
-      "versionNonce": 1917707509,
+      "version": 2679,
+      "versionNonce": 764745752,
       "isDeleted": false,
       "boundElements": [
         {
@@ -3540,7 +3544,7 @@
           "id": "TozIiKJpsMWZEHfP43Zys"
         }
       ],
-      "updated": 1789050377652,
+      "updated": 1789052939482,
       "link": null,
       "locked": false,
       "points": [
@@ -3549,31 +3553,23 @@
           0
         ],
         [
-          264.6904463441392,
-          -8.944239493965142
+          195.8971194449241,
+          -110.49634570543503
         ],
         [
-          348.5126628310486,
-          -208.99200192005355
+          270.7106310855406,
+          -222.0954967747216
         ]
       ],
       "startBinding": {
         "elementId": "HPNKoOpRwWJ2LbTJJo8V-",
-        "mode": "inside",
-        "fixedPoint": [
-          0.9984954012667745,
-          0.5386760877649714
-        ],
-        "focus": 0
+        "focus": 0.503720551329925,
+        "gap": 1
       },
       "endBinding": {
         "elementId": "7FKLMlAErPG48dMzHS0Fp",
-        "mode": "orbit",
-        "fixedPoint": [
-          0.7893040679657752,
-          0.5001
-        ],
-        "focus": 0
+        "focus": -0.07122426096577592,
+        "gap": 1.271820115873042
       },
       "startArrowhead": "arrow",
       "endArrowhead": "arrow",
@@ -5679,7 +5675,7 @@
       "version": 239,
       "versionNonce": 1548402421,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [],
       "updated": 1789052139046,
       "link": null,
       "locked": false,
@@ -5690,6 +5686,177 @@
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "Payment Gateway with idempotentKey for unique payment identification\nGateway can have retries, webhook/polling for status update and reconciliation",
+      "autoResize": true,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "1KssSzYgj--n3hIMgXOuz",
+      "type": "rectangle",
+      "x": 2569.403645012529,
+      "y": 2242.9969429548737,
+      "width": 183.30032230306688,
+      "height": 131.25207400423005,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "b5B",
+      "roundness": {
+        "type": 3
+      },
+      "seed": 1642276968,
+      "version": 43,
+      "versionNonce": 643496296,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "type": "text",
+          "id": "rJRZVDYkBR6qZt1GwH__7"
+        },
+        {
+          "id": "kAwS4m4NWUeM8bD9pk5LD",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1789052983942,
+      "link": null,
+      "locked": false
+    },
+    {
+      "id": "rJRZVDYkBR6qZt1GwH__7",
+      "type": "text",
+      "x": 2615.483844616211,
+      "y": 2283.6229799569887,
+      "width": 91.13992309570312,
+      "height": 50,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "b5C",
+      "roundness": null,
+      "seed": 1952075800,
+      "version": 27,
+      "versionNonce": 299362152,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1789053392706,
+      "link": null,
+      "locked": false,
+      "text": "Sweeper\nScheduler",
+      "fontSize": 20,
+      "fontFamily": 5,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "1KssSzYgj--n3hIMgXOuz",
+      "originalText": "Sweeper Scheduler",
+      "autoResize": true,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "kAwS4m4NWUeM8bD9pk5LD",
+      "type": "arrow",
+      "x": 2569.403645012529,
+      "y": 2306.360008698709,
+      "width": 62.231573640294755,
+      "height": 222.90223515576326,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "b5D",
+      "roundness": {
+        "type": 2
+      },
+      "seed": 864198760,
+      "version": 135,
+      "versionNonce": 619978856,
+      "isDeleted": false,
+      "boundElements": [],
+      "updated": 1789053040447,
+      "link": null,
+      "locked": false,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -38.47042074915635,
+          -78.07235949945425
+        ],
+        [
+          -62.231573640294755,
+          -222.90223515576326
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": {
+        "elementId": "1KssSzYgj--n3hIMgXOuz",
+        "focus": -0.7301945036044418,
+        "gap": 1
+      },
+      "endBinding": {
+        "elementId": "7FKLMlAErPG48dMzHS0Fp",
+        "focus": -0.17661370108675972,
+        "gap": 2.3440490132240734
+      },
+      "startArrowhead": "arrow",
+      "endArrowhead": "arrow",
+      "elbowed": false
+    },
+    {
+      "id": "J3Pgo1Zdd1sz7TczkBmfO",
+      "type": "text",
+      "x": 2584.112912870547,
+      "y": 2387.8268186111845,
+      "width": 357.2197265625,
+      "height": 75,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "b5F",
+      "roundness": null,
+      "seed": 1136925032,
+      "version": 132,
+      "versionNonce": 1902671720,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1789053547681,
+      "link": null,
+      "locked": false,
+      "text": "Get locked seats\nVerify if retry is happening or not\nRelease the cancelled payment seats",
+      "fontSize": 20,
+      "fontFamily": 5,
+      "textAlign": "left",
+      "verticalAlign": "top",
+      "containerId": null,
+      "originalText": "Get locked seats\nVerify if retry is happening or not\nRelease the cancelled payment seats",
       "autoResize": true,
       "lineHeight": 1.25
     }

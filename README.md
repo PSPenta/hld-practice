@@ -139,7 +139,7 @@ Each diagram folder contains:
 
 - `README.md` — preview on GitHub when you open the folder  
 - `*.excalidraw` — edit in Cursor/VS Code or [excalidraw.com](https://excalidraw.com)  
-- `*.png` / `*.svg` — image exports  
+- `*.png` — preview image for GitHub folder README  
 
 ---
 

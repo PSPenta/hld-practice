@@ -1,5 +1,5 @@
-﻿# Payment Gateway
+# Payment Gateway
 
-[← Back to repo](../../README.md) · [Edit diagram](./payment-gateway-system.excalidraw) · [SVG](./payment-gateway-system.svg)
+[? Back to repo](../../README.md) � [Edit diagram](./payment-gateway-system.excalidraw)
 
 ![Payment Gateway](./payment-gateway-system.png)

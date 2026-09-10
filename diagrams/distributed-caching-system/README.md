@@ -1,5 +1,5 @@
-﻿# Distributed Caching
+# Distributed Caching
 
-[← Back to repo](../../README.md) · [Edit diagram](./distributed-caching-system.excalidraw) · [SVG](./distributed-caching-system.svg)
+[? Back to repo](../../README.md) � [Edit diagram](./distributed-caching-system.excalidraw)
 
 ![Distributed Caching](./distributed-caching-system.png)

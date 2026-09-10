@@ -1,5 +1,5 @@
-﻿# Notification System
+# Notification System
 
-[← Back to repo](../../README.md) · [Edit diagram](./notification-system.excalidraw) · [SVG](./notification-system.svg)
+[? Back to repo](../../README.md) � [Edit diagram](./notification-system.excalidraw)
 
 ![Notification System](./notification-system.png)
