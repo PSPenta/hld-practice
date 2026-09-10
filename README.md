@@ -16,7 +16,7 @@ Open files under [`diagrams/`](./diagrams) with the [Excalidraw extension](https
 | [Prerequisites (grouped)](#prerequisites-grouped) | Links into [`docs/`](./docs/README.md) |
 | [Quick references (YouTube)](#quick-references-youtube) | Deep dives & walkthrough playlists |
 | [How to practice](#how-to-practice) | Using diagrams in this repo |
-| [Popular HLDs](#popular-hlds) | Catalog ✅/❌ + folder links |
+| [Popular HLDs](#popular-hlds) | Catalog ✅/⚠️/❌ + folder links |
 | [Prep plan](./docs/prep-plan.md) | Daily/weekly DSA · LLD · HLD schedule |
 
 **Docs curriculum:** [docs/README.md](./docs/README.md) (study order A→E). Each long doc has its own **Index** at the top.
@@ -129,10 +129,11 @@ Use alongside timed redesigns — watch a walkthrough, then redraw from scratch 
 ## How to practice
 
 1. Install the recommended Excalidraw extension when prompted.  
-2. Pick an HLD from the table below (prefer ✅ first, then ❌ as stretch).  
+2. Pick an HLD from the table below — start with **Experience-based** rows (resume products), then ✅ classics, then ⚠️ to harden, then ❌ stretch.  
 3. Open the folder link — GitHub renders that folder’s `README.md` with the preview image.  
 4. Redesign in **45–60 minutes aloud**; then gap-check against the diagram.  
 5. Staff pass: add SLO, one region failure, and cost/MVP cut without prompting.  
+6. For experience HLDs: practice **sanitized** versions (no internal secrets) you can redraw when asked “design something you built.”  
 
 Each diagram folder contains:
 
@@ -144,18 +145,38 @@ Each diagram folder contains:
 
 ## Popular HLDs
 
-| HLD | In repo | Folder |
-|-----|---------|--------|
-| BookMyShow / Ticket Booking | ✅ | [`diagrams/bookmyshow-hld/`](./diagrams/bookmyshow-hld/) |
-| Distributed Queue | ✅ | [`diagrams/distributed-queue/`](./diagrams/distributed-queue/) |
-| Distributed Caching | ✅ | [`diagrams/distributed-caching-system/`](./diagrams/distributed-caching-system/) |
-| Large Scale Search | ✅ | [`diagrams/large-scale-search-system/`](./diagrams/large-scale-search-system/) |
-| Load Balancer | ✅ | [`diagrams/load-balancer-hld/`](./diagrams/load-balancer-hld/) |
+**Completed** = practice-ready for an SDE3/Staff-style redraw (skeleton + enough depth to rehearse deep dives).  
+**⚠️** = in repo but **not** Staff-complete yet — use as a starting board, then harden.  
+**❌** = not drawn yet.
+
+Interviewers often ask you to **design a system from your own experience** (“Walk me through something you built”, “Design X from your resume”). Treat the **Experience-based** rows below as first-class prep — same bar as classic HLDs, with domain detail only you can bring.
+
+### Experience-based (resume products)
+
+| HLD (angle to practice) | Product / company | Completed | Folder |
+|-------------------------|-------------------|-----------|--------|
+| AI Equity Research Platform (RAG, agents, SSE, credits) | SuperStocks.ai | ❌ | — |
+| Identity & Multi-Profile Auth (OTP, fraud controls) | MediBuddy | ❌ | — |
+| In-house Wallet & Settlements (reconciliation, ledgers) | RARIO | ❌ | — |
+| B2B Lending / Loan Origination (partners, disbursal, payouts) | DigiPartner · partner.rupyy.com (CarDekho) | ❌ | — |
+| Supply-Chain / OMS (orders, returns, refunds, logistics) | Purplle.com (SCM) | ❌ | — |
+
+Related practice already in repo: [Notification System](./diagrams/notification-system/) (Purplle / MediBuddy OTP & SMS), [Payment Gateway](./diagrams/payment-gateway-system/) (Razorpay subscriptions, RARIO wallet adjacent).
+
+### Classic interview HLDs
+
+| HLD | Completed | Folder |
+|-----|-----------|--------|
 | Notification System | ✅ | [`diagrams/notification-system/`](./diagrams/notification-system/) |
-| Logging and Monitoring | ✅ | [`diagrams/logging-and-monitoring-system/`](./diagrams/logging-and-monitoring-system/) |
 | Payment Gateway | ✅ | [`diagrams/payment-gateway-system/`](./diagrams/payment-gateway-system/) |
-| WhatsApp / Chat | ✅ | [`diagrams/whatsapp-hld/`](./diagrams/whatsapp-hld/) |
 | Social Media / News Feed | ✅ | [`diagrams/social-media-app/`](./diagrams/social-media-app/) |
+| Distributed Queue | ✅ | [`diagrams/distributed-queue/`](./diagrams/distributed-queue/) |
+| BookMyShow / Ticket Booking | ✅ | [`diagrams/bookmyshow-hld/`](./diagrams/bookmyshow-hld/) |
+| Distributed Caching | ⚠️ | [`diagrams/distributed-caching-system/`](./diagrams/distributed-caching-system/) |
+| Large Scale Search | ⚠️ | [`diagrams/large-scale-search-system/`](./diagrams/large-scale-search-system/) |
+| Logging and Monitoring | ⚠️ | [`diagrams/logging-and-monitoring-system/`](./diagrams/logging-and-monitoring-system/) |
+| WhatsApp / Chat | ⚠️ | [`diagrams/whatsapp-hld/`](./diagrams/whatsapp-hld/) |
+| Load Balancer | ⚠️ | [`diagrams/load-balancer-hld/`](./diagrams/load-balancer-hld/) |
 | URL Shortener | ❌ | — |
 | Rate Limiter | ❌ | — |
 | Uber / Ride Sharing | ❌ | — |
