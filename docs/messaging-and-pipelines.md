@@ -34,22 +34,51 @@ Hybrid products exist (SNS→SQS, Kafka consumer groups). In interviews, pick ba
 
 ## Kafka vs RabbitMQ vs SQS
 
-| | **Amazon SQS** | **RabbitMQ** | **Kafka** |
-|--|----------------|--------------|-----------|
-| Model | Managed queue | Smart broker (AMQP) | Distributed append log |
-| Ordering | Standard: none; FIFO: per group (limited) | Per-queue; routing flexible | **Per partition** by key |
-| Replay | No (after delete/ack) | Generally no | **Yes** (retain + offset reset) |
-| Throughput | High, simple | Medium; rich routing | Very high, sequential disk |
-| Ops | Almost none | You run clusters (or cloud) | Heavier ops / MSK |
-| Best for | Simple async jobs, decouple AWS services | Complex routing, per-message control | Event streams, CDC, analytics, replay |
+Same three jobs (work queue, pub/sub, stream), different parts. None delete a message just because a consumer **saw** it — it is finished only on ack / delete / offset commit. Retry is **at-least-once**, so consumers must be idempotent. Order is never global: one FIFO group, one queue, or one partition.
 
-**Rule of thumb**
+**Parts**
 
-- **SQS** — simple **work queue** (not pub/sub): one message → one worker; similar jobs; AWS-native; + DLQ. For pub/sub use **SNS→SQS**.
-- **RabbitMQ** — complex routing (exchanges/keys), priorities, delay/retry patterns; classic task messaging.
-- **Kafka** — high volume, **per-key order**, **replay**, **many consumer groups** on same log (CDC, analytics, event bus).
+- **SQS** — you don’t run a broker. A **queue** is the only object (standard or FIFO). **MessageGroupId** is the FIFO order scope (like a key). **Visibility timeout** hides a received message until delete or timeout. Pub/sub is **not** SQS: put **SNS** in front and subscribe many queues.
+- **RabbitMQ** — the **broker** is the node/cluster. Producer publishes to an **exchange** (fanout / direct / topic). A **binding** + **routing key** copies into one or more **queues**. Consumers compete on a queue; unacked messages stay until `ack`.
+- **Kafka** — a **broker** is one server in the cluster (often **MSK**). A **topic** is a named log, split into **partitions** (ordered, append-only shards — the parallelism unit). A **key** is hashed to a partition: same key → same partition → order. A **consumer group** splits partitions among its members (one member per partition). Another group reads the same log with its own **offsets**.
 
-**Cost / ops (rough):** SQS simplest (fully managed). RabbitMQ medium (Amazon MQ or self-host). Kafka highest complexity/cost at scale — but **MSK / Confluent** means it’s not always “self-managed.” Pick on **replay / fan-out / routing needs**, not cost alone.
+| | **SQS** | **RabbitMQ** | **Kafka** |
+|--|---------|--------------|-----------|
+| Broker | AWS runs it; you only see the queue | RabbitMQ node/cluster (or Amazon MQ) | Server storing partition replicas; cluster or MSK |
+| Stored where | One queue | Queue, after exchange + binding | Partition inside a topic |
+| Key / route | FIFO: `MessageGroupId`. Standard: none | Routing key → binding → queue(s) | Record **key** → partition |
+| Simple queue (one job, many workers) | Native. Receive → one worker; others don’t see it until timeout or delete | One queue, competing consumers, `prefetch` | Awkward. One consumer group; partitions = parallelism; message stays until retention |
+| Pub/sub (many independent readers) | **SNS →** one SQS queue per subscriber | Fanout/topic exchange → one queue per subscriber | One topic, **one consumer group per subscriber** (own offsets) |
+| Streaming / replay | No. Ack deletes it | No. Ack removes it | Yes. Retention + reset offset / new group from earliest |
+| On read | Invisible for visibility timeout; still on the queue | Unacked (`prefetch`); still on the queue | Offset not committed; record stays on the log |
+| Success | `DeleteMessage` | `basic.ack` | Commit offset **after** the side effect |
+| Fail before ack | Timeout → visible again; receive count +1 | Channel close or `nack(requeue=true)` → redeliver | Don’t commit → same offset retried; **partition blocked** |
+| Retry delay | Visibility timeout (or delay, max 15 min) | Immediate requeue unless you add TTL/delay queues | None. Pause on the offset, or app retry topic |
+| DLQ | Not on until you set **redrive** (`maxReceiveCount` + DLQ). FIFO needs a FIFO DLQ | Not on until **`x-dead-letter-exchange`**. Quorum: also `x-delivery-limit` or messages requeue forever / drop | **Not native.** App writes `<topic>.DLT`. Without that, stuck offset or a skip (gap) |
+| Produce order | FIFO only, per group, and only if you send the next after the previous succeeds. Standard: none | One queue, **publisher confirms**, next dependent only after confirm | Same key → one partition. `acks=all` + **idempotent producer** so retries don’t reorder |
+| Produce fails | Failed send never enters. Later successes in that group stay after earlier ones (**gap**, no swap). Other groups fine. Broker does not know “B depends on A” — you stop sending | Unconfirmed message is not queued. Don’t publish the next in the chain. Other queues fine | Unacked record is not in the log. Idempotent producer retries the **same sequence**. Non-idempotent + in-flight &gt; 1 **can reorder** |
+| Consume order | FIFO: failure **blocks** later messages in that group until ack or DLQ. Extra workers don’t order a standard queue | Holds only with **one** consumer. Competing consumers break order; requeue can jump the front | One consumer per partition. Stuck offset blocks the rest. Skip/DLT unblocks but leaves a gap |
+| Ops / fit | Simplest. Work queue, AWS glue. Not a log | Medium ops. Routing, delay, priorities | Heavier (MSK still not free). CDC, replay, many readers |
+
+**Example — `userId=42` events E1, E2, E3 (E2 produce fails).** Queue/group/key = `42`.
+
+- **SQS FIFO:** E1 is in the group. E2 never is. If you waited for E1’s success before E3, E3 is not sent. If you sent E3 anyway, consumers see E1 then E3 (gap, not a swap).
+- **RabbitMQ:** no confirm on E2 → don’t publish E3 to that queue. Other routing keys are untouched.
+- **Kafka key `42`:** E1 is offset N on one partition. Idempotent producer retries E2 in place. E3 follows only after E2 is acked, so dependents don’t leapfrog.
+
+**Example — worker crashes mid-payment.**
+
+- **SQS:** invisible for 30s, then another receive (count 2). After `maxReceiveCount` (if redrive is set) it moves to the DLQ; otherwise it retries until retention.
+- **RabbitMQ:** unacked message returns. Without a DLX it can poison-loop. With DLX + delivery-limit, the Nth failure is dead-lettered.
+- **Kafka:** offset not committed, so that partition retries the same record and later payments for that key wait. App publishes to `.DLT` and commits only if you accept a gap.
+
+**Example — OrderPlaced to email and analytics.**
+
+- **SQS:** SNS topic, two SQS subscriptions; each queue is a simple competing-worker queue.
+- **RabbitMQ:** fanout exchange, bindings to `email.q` and `analytics.q`.
+- **Kafka:** topic `orders`, groups `email` and `analytics`; both replay independently.
+
+Parallelize by **more groups/partitions/keys**, not by sharing one ordered stream across many workers.
 
 See [Distributed Queue](../diagrams/distributed-queue/distributed-queue.excalidraw).
 
