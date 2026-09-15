@@ -189,7 +189,7 @@ State **RPO/RTO** when you draw multi-region DB. Detail: [Reliability — multi-
 | **Write-heavy** | Batch/async where possible → partition/shard on write key → LSM/wide-column if fit → avoid sync cross-region on every write |
 | **Read + write both hot** | Split paths: sync write to primary; async CDC to read stores; don’t force one DB shape for both |
 
-**Connection note:** every replica and every service/worker pool multiplies connections — use a pooler; see [Service architecture](./service-architecture.md#db-connections-services-vs-workers).
+**Connection note:** every replica and every service/worker pool multiplies connections — use a pooler; see [Service architecture — DB topology & connections](./service-architecture.md#db-topology-connections).
 
 ---
 

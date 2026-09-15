@@ -11,9 +11,9 @@ How you split the app: monolith vs microservices, request-path **services** vs a
 - [Monolith vs microservices](#monolith-vs-microservices)
 - [Services vs workers](#services-vs-workers)
 - [Where to use services vs workers](#where-to-use-services-vs-workers)
-- [Beyond services & workers](#beyond-services--workers)
-- [Cron / scheduler vs Temporal](#cron--scheduler-vs-temporal)
-- [DB topology & connections](#db-topology--connections)
+- [Beyond services & workers](#beyond-services-workers)
+- [Cron / scheduler vs Temporal](#cron-scheduler-vs-temporal)
+- [DB topology & connections](#db-topology-connections)
 
 ---
 

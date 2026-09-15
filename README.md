@@ -10,7 +10,7 @@ Open files under [`diagrams/`](./diagrams) with the [Excalidraw extension](https
 |---------|------------------|
 | [What is HLD?](#what-is-hld) | Definition and artifacts |
 | [HLD vs LLD](#hld-vs-lld) | Scope and granularity |
-| [What does the interviewer evaluate?](#what-does-the-interviewer-evaluate) | Mid/Senior vs Staff bar |
+| [What does the interviewer evaluate?](#what-does-the-interviewer-evaluate) | Mid/Senior vs Staff bar + [Staff vocabulary](./docs/staff-vocabulary.md) |
 | [How a typical HLD round runs](#how-a-typical-hld-round-runs) | 45–60 min timeline |
 | [Standard approach (checklist)](#standard-approach-checklist) | End-to-end design steps |
 | [Prerequisites (grouped)](#prerequisites-grouped) | Links into [`docs/`](./docs/README.md) |
@@ -68,8 +68,9 @@ Rule of thumb: **Kafka vs SQS**, **SQL vs NoSQL**, **fan-out on write vs read** 
 12. **Multi-region / DR** only when justified (RPO/RTO)  
 13. **Security & compliance** on sensitive paths (esp. payments: PCI scope, idempotency, reconciliation)  
 14. Mentorship signal: teach as you design; correct yourself out loud  
+15. **Dependency & capacity language** — upstream/downstream, bottleneck resource, backpressure, blast radius used correctly ([Staff vocabulary](./docs/staff-vocabulary.md))
 
-Weak signals: buzzword salad, ignoring peaks, no idempotency on payments, “we’ll scale later” with no plan.
+Weak signals: buzzword salad, ignoring peaks, no idempotency on payments, “we’ll scale later” with no plan, calling the DB “upstream” on a read path.
 
 ---
 
@@ -106,7 +107,7 @@ Don’t learn as a flat list — follow the curriculum in [`docs/README.md`](./d
 
 | Group | Docs |
 |-------|------|
-| **Interview craft** | [Soft skills](./docs/soft-skills.md) · [Estimation](./docs/estimation-fluency.md) · [Prep plan](./docs/prep-plan.md) |
+| **Interview craft** | [Soft skills](./docs/soft-skills.md) · [Staff vocabulary](./docs/staff-vocabulary.md) · [Estimation](./docs/estimation-fluency.md) · [Prep plan](./docs/prep-plan.md) |
 | **Foundation** | [Building blocks](./docs/building-blocks.md) · [Service architecture](./docs/service-architecture.md) · [Core concepts](./docs/core-concepts.md) · [Scaling](./docs/scaling.md) · [Networking & media](./docs/networking-and-media.md) |
 | **Data & messaging** | [Data stores](./docs/data-stores.md) · [Caching](./docs/caching.md) · [Messaging & pipelines](./docs/messaging-and-pipelines.md) · [Algorithms & indexes](./docs/algorithms-and-indexes.md) |
 | **Reliability & correctness** | [Distributed coordination](./docs/distributed-coordination.md) · [Reliability & SLOs](./docs/reliability-and-slos.md) · [Security & compliance](./docs/security-and-compliance.md) |

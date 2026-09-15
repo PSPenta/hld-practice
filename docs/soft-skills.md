@@ -108,7 +108,13 @@ Fintech (Razorpay-class): volunteer **PCI scope reduction, idempotency, reconcil
 
 ## Language that scores
 
-- “Bottleneck”, “blast radius”, “idempotent”, “degrade gracefully”, “hot key”, “SLO / p99”, “error budget”, “RPO/RTO”
+Full glossary with Staff-level usage: [Staff vocabulary](./staff-vocabulary.md).
+
+Quick hits:
+
+- **Upstream / downstream** — label who calls whom on your diagram (request flow, not “importance”)
+- “Bottleneck”, “blast radius”, “backpressure”, “load shedding”, “idempotent”, “degrade gracefully”, “hot key”
+- “SLO / p99”, “error budget”, “headroom”, “goodput”, “consumer lag”, “RPO/RTO”
 - Quantify when you can (“~10K QPS”, “p99 &lt; 200ms”)
 - Avoid unsupported absolutes (“Kafka is always better”)
 

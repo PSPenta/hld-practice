@@ -15,13 +15,13 @@ Daily/weekly schedule for cracking **SDE3**-style loops at FAANG / Razorpay / ti
 
 - [What this plan covers](#what-this-plan-covers)
 - [Are these resources enough?](#are-these-resources-enough)
-- [Day window (11:00 – 21:00)](#day-window-1100--2100)
+- [Day window (11:00 – 21:00)](#day-window-1100-2100)
 - [Daily targets](#daily-targets)
 - [Weekly rhythm](#weekly-rhythm)
 - [Weekly targets](#weekly-targets)
-- [Theory revision (1–2× / week)](#theory-revision-12--week)
-- [Language via DSA & LLD](#language-via-dsa--lld)
-- [8–10 week phases](#810-week-phases)
+- [Theory revision (1–2× / week)](#theory-revision-1-2-week)
+- [Language via DSA & LLD](#language-via-dsa-lld)
+- [8–10 week phases](#8-10-week-phases)
 - [Win condition](#win-condition)
 
 ---

@@ -27,6 +27,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 | Doc | Why |
 |-----|-----|
 | [Soft skills](./soft-skills.md) | Narrative, trade-offs, Staff-level leadership signals |
+| [Staff vocabulary](./staff-vocabulary.md) | Upstream/downstream, capacity, overload, isolation terms |
 | [Estimation fluency](./estimation-fluency.md) | Justify every box with order-of-magnitude math |
 | [Prep plan (daily / weekly)](./prep-plan.md) | DSA + LLD + HLD schedule (11:00–21:00) |
 | Root [README — standard approach](../README.md#standard-approach-checklist) | Round structure |
@@ -76,6 +77,8 @@ Each doc follows:
 4. **Sections** — concept → comparison table → when to use → interview pitfalls  
 5. **See also** — cross-links (no orphan topics)
 
+**Anchor rule (same-file & cross-file):** lowercase; spaces → `-`; `&` removed (not `--`); en-dash `–` → `-`; punctuation stripped. Example: `Latency & metrics vocabulary` → `#latency-metrics-vocabulary`.
+
 If something feels like a “random glossary dump,” it belongs in the curriculum group above, not a new top-level README bullet.
 
 ---
@@ -85,7 +88,7 @@ If something feels like a “random glossary dump,” it belongs in the curricul
 You are ready for a strong round when you can, without notes:
 
 - [ ] Drive FR/NFR → estimate → API → diagram → deep dive in 45 minutes  
-- [ ] Name the **bottleneck resource** (RPS vs CPU vs IO vs connections)  
+- [ ] Name the **bottleneck resource** (RPS vs CPU vs IO vs connections) — [Staff vocabulary](./staff-vocabulary.md)  
 - [ ] Pick consistency **per data path**, not globally  
 - [ ] Design **idempotent** writes and at-least-once consumers  
 - [ ] State **SLO + error budget** and what you shed under overload  
