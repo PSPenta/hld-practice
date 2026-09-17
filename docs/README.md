@@ -6,6 +6,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 
 - [How to use this](#how-to-use-this)
 - [Curriculum (grouped)](#curriculum-grouped)
+- [Topic catalog (sneak peek)](./topic-catalog.md)
 - [Format convention (all docs)](#format-convention-all-docs)
 - [Staff / SDE3 bar (self-check)](#staff-sde3-bar-self-check)
 
@@ -22,6 +23,8 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 
 ## Curriculum (grouped)
 
+**Sneak peek of every nested topic:** [Topic catalog](./topic-catalog.md) (points → sub-points with deep links).
+
 ### A. Interview craft
 
 | Doc | Why |
@@ -36,7 +39,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 
 | Doc | Why |
 |-----|-----|
-| [Building blocks](./building-blocks.md) | DNS, CDN, LB, gateway, cache, DB, queue, search, realtime |
+| [Building blocks](./building-blocks.md) | DNS, CDN, LB, **forward/reverse proxy**, VPN vs proxy, gateway, cache, DB, queue, search, realtime |
 | [Service architecture](./service-architecture.md) | Monolith vs microservices, **services vs workers**, DB connections |
 | [Core concepts](./core-concepts.md) | CAP, consistency, idempotency, fan-out, CRDT pointer |
 | [Scaling](./scaling.md) | Bottleneck type (RPS/CPU/mem), partition vs shard |

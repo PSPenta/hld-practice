@@ -37,7 +37,7 @@ WebSockets and HTTP still ride **TCP** (or QUIC).
 
 ## HLS vs DASH
 
-Adaptive bitrate **VOD / live-to-many** over HTTP.
+Adaptive bitrate **VOD / live-to-many** over HTTP: **HLS** (HTTP Live Streaming) vs **DASH** (Dynamic Adaptive Streaming over HTTP).
 
 | | **HLS** (Apple) | **DASH** (MPEG-DASH) |
 |--|-----------------|----------------------|
@@ -55,7 +55,7 @@ Not ideal for ultra-low-latency interactive calls (use WebRTC).
 
 ## RTMP vs SRT
 
-**Ingest** (creator → platform) more than viewer playback.
+**Ingest** (creator → platform) more than viewer playback: **RTMP** (Real-Time Messaging Protocol) vs **SRT** (Secure Reliable Transport).
 
 | | **RTMP** | **SRT** |
 |--|----------|---------|
@@ -77,7 +77,8 @@ Interactive 1:1 or small group: **WebRTC** (UDP, ICE, SFU/MCU) instead of HLS.
 
 ## Related networking prerequisites
 
-- **TLS termination** at LB / gateway
+- **TLS termination** at LB / reverse proxy / gateway
+- **Forward vs reverse proxy**, **VPN vs forward proxy** — [Building blocks](./building-blocks.md#forward-vs-reverse-proxy)
 - **HTTP/2, HTTP/3** — multiplexing; reduces connection count
 - **gRPC** — HTTP/2 + protobuf; great service-to-service
 - **WebRTC SFU vs MCU** — forward vs mix media (cost/CPU trade-off)

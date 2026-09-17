@@ -14,12 +14,13 @@ Open files under [`diagrams/`](./diagrams) with the [Excalidraw extension](https
 | [How a typical HLD round runs](#how-a-typical-hld-round-runs) | 45–60 min timeline |
 | [Standard approach (checklist)](#standard-approach-checklist) | End-to-end design steps |
 | [Prerequisites (grouped)](#prerequisites-grouped) | Links into [`docs/`](./docs/README.md) |
+| [Topic catalog](./docs/topic-catalog.md) | Nested sneak peek of every concept |
 | [Quick references (YouTube)](#quick-references-youtube) | Deep dives & walkthrough playlists |
 | [How to practice](#how-to-practice) | Using diagrams in this repo |
 | [Popular HLDs](#popular-hlds) | Catalog ✅/⚠️/❌ + folder links |
 | [Prep plan](./docs/prep-plan.md) | Daily/weekly DSA · LLD · HLD schedule |
 
-**Docs curriculum:** [docs/README.md](./docs/README.md) (study order A→E). Each long doc has its own **Index** at the top.
+**Docs curriculum:** [docs/README.md](./docs/README.md) (study order A→E). **All topics at a glance:** [topic catalog](./docs/topic-catalog.md). Each long doc also has its own **Index**.
 
 ---
 
@@ -103,7 +104,7 @@ You drive. Interviewers push with “100× traffic?” and “this node dies?”
 
 ## Prerequisites (grouped)
 
-Don’t learn as a flat list — follow the curriculum in [`docs/README.md`](./docs/README.md).
+Don’t learn as a flat list — follow the curriculum in [`docs/README.md`](./docs/README.md). For a nested sneak peek of every concept, use the [topic catalog](./docs/topic-catalog.md).
 
 | Group | Docs |
 |-------|------|

@@ -11,7 +11,10 @@ The reusable infrastructure pieces you place on an HLD board. Know **when** to u
 - [DNS](#dns)
 - [CDN (Content Delivery Network)](#cdn-content-delivery-network)
 - [Load balancer (LB)](#load-balancer-lb)
-- [Reverse proxy & API gateway](#reverse-proxy-api-gateway)
+- [Forward vs reverse proxy](#forward-vs-reverse-proxy)
+- [VPN vs forward proxy](#vpn-vs-forward-proxy)
+- [Common proxy / edge products](#common-proxy-edge-products)
+- [API gateway](#api-gateway)
 - [Stateless app servers](#stateless-app-servers)
 - [Caching (Redis / Memcached)](#caching-redis-memcached)
 - [Databases](#databases)
@@ -124,12 +127,84 @@ In interviews you can draw one box “LB / Gateway” then clarify L4 vs L7 if a
 - Single LB AZ → regional outage.  
 - L4 in front of HTTP canaries that need path/header split → won’t work; need L7 or mesh.
 
-## Reverse proxy & API gateway
+## Forward vs reverse proxy
 
-- **Reverse proxy:** sits in front of apps (nginx, Envoy) — TLS, buffering, routing
-- **API gateway:** productized edge for many services — auth, rate limit, request routing, API keys, sometimes aggregation
+Direction is about **who the proxy represents**, not “more secure.”
 
-In interviews, “API Gateway” often means: single entry, authn, rate limiting, then route to microservices.
+```text
+Forward:  Client → [Forward proxy] → Internet (any site)
+Reverse:  Client → [Reverse proxy / CDN] → Your origin servers
+```
+
+| | **Forward proxy** | **Reverse proxy** |
+|--|-------------------|-------------------|
+| Represents | The **client** (egress) | Your **servers** (ingress) |
+| Client config | Explicit proxy URL / PAC / transparent intercept | None — client hits your hostname |
+| Typical goals | Hide client IP from sites, allow/deny destinations, log/browse policy | TLS, routing, buffering, load balance, WAF, cache |
+| Can block sites? | **Yes** — classic corp/school filter (domain, category, URL) | Blocks/abuses **inbound** to your app (WAF), not “employee can’t open YouTube” |
+| HLD board | Rare (unless designing corp egress / SWG) | Common — in front of app fleet |
+
+**Nginx:** usually drawn as **reverse** (`proxy_pass` to upstream apps). It *can* act as a forward proxy, but corps often use Squid / commercial SWGs for that.
+
+**Cloudflare:** orange-cloud DNS + proxy = **reverse** proxy/CDN in front of your origin. Blocking employees from websites = **Cloudflare Gateway / Zero Trust** (forward-proxy / secure web gateway style), not the same product mode.
+
+### Minimal setup shapes (interview depth)
+
+**Reverse (Nginx)** — terminate TLS, forward to app pool:
+
+```nginx
+server {
+  listen 443 ssl;
+  server_name api.example.com;
+  location / {
+    proxy_pass http://app_upstream;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}
+```
+
+**Reverse (Cloudflare)** — add zone → DNS to origin → proxy (orange cloud) on → optional WAF/cache rules; origin may allowlist only Cloudflare IPs.
+
+**Forward** — clients set `HTTP_PROXY` / PAC to Squid or Nginx forward listener; ACLs deny categories/domains. With Cloudflare: enroll device in Zero Trust / WARP → Gateway HTTP policies allow/block.
+
+---
+
+## VPN vs forward proxy
+
+**Do not say “company VPN = forward proxy.”** They often appear together; they are different layers.
+
+| | **Company VPN** | **Forward proxy** |
+|--|-----------------|-------------------|
+| What it is | Encrypted **network tunnel** onto corp/cloud network | **Application hop** for (usually) HTTP(S) |
+| Layer | Mostly L3/L4 (WireGuard, IPsec, OpenVPN, …) | Mostly L7 for web (explicit proxy / CONNECT) |
+| Primary job | Reach **private** apps, corp DNS; optionally force all IP egress via corp | Policy on **which sites** clients may open; inspect/log web |
+| Site blocking | Via firewall / DNS / gateway **after** the tunnel | Via proxy ACLs / SWG policies on requests |
+
+**Common corp pattern:** VPN (or Zero Trust agent) → then **forced** through a forward proxy / secure web gateway (Zscaler, Cloudflare Gateway, Blue Coat). Private access comes from the tunnel; web allow/deny comes from the proxy/SWG.
+
+**Interview line:** *“VPN is a tunnel. Forward proxy is an HTTP intermediary. Corps combine them: VPN for private access, forward proxy/SWG for outbound web control.”*
+
+---
+
+## Common proxy / edge products
+
+| Product | Typical role in HLD |
+|---------|---------------------|
+| **Nginx** / **HAProxy** / **Envoy** | Reverse proxy + L7 LB; Envoy also service mesh sidecar |
+| **AWS ALB** / **NLB**, GCP/Azure LBs | Managed reverse LB (L7 / L4) |
+| **Cloudflare**, Fastly, Akamai | Reverse proxy + CDN + WAF at edge |
+| **Squid**, commercial SWG (Zscaler, Blue Coat) | Forward proxy / web filter |
+| **Cloudflare Gateway**, Zscaler | Forward-proxy-like secure web gateway (+ often with Zero Trust agent) |
+| **API Gateway** (Kong, AWS API GW, Apigee) | Product edge: auth, rate limit, route to many services |
+
+---
+
+## API gateway
+
+Productized **reverse** edge for many services — authn, rate limiting, API keys, request routing, sometimes aggregation.
+
+In interviews, “API Gateway” often means: single entry, authn, rate limiting, then route to microservices. Draw it when you have **many different** backends; a plain reverse proxy/LB is enough for identical app replicas.
 
 ## Stateless app servers
 
