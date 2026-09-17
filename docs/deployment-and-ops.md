@@ -11,7 +11,7 @@ How you ship and run systems: containers, orchestration, release strategies, and
 - [Docker](#docker)
 - [Kubernetes (K8s)](#kubernetes-k8s)
 - [Deployment strategies](#deployment-strategies)
-- [Monitoring: Prometheus & Grafana](#monitoring-prometheus-grafana)
+- [Monitoring: Prometheus, Grafana & ELK](#monitoring-prometheus-grafana-elk)
 - [SLIs, SLOs, SLAs (ops vocabulary)](#slis-slos-slas-ops-vocabulary)
 - [Other ops prerequisites](#other-ops-prerequisites)
 
@@ -70,7 +70,7 @@ Tie to NFRs: payments → canary + fast rollback; internal tools → rolling is 
 
 ---
 
-## Monitoring: Prometheus & Grafana
+## Monitoring: Prometheus, Grafana & ELK
 
 ### Prometheus
 
@@ -86,16 +86,59 @@ Tie to NFRs: payments → canary + fast rollback; internal tools → rolling is 
 
 - Dashboards & visualization over Prometheus (and Loki, Tempo, …)
 - On-call views: SLOs, burn rates, dependency health
+- Can plot **metrics** well; not a replacement for deep **log search** (that’s Kibana / similar)
+
+### ELK stack
+
+**ELK** = **E**lasticsearch + **L**ogstash + **K**ibana (often + Beats/Fluent Bit as shippers). OpenSearch + Data Prepper/Logstash-style pipelines is the common fork.
+
+| Piece | Role |
+|-------|------|
+| **Beats / agents** | Ship logs/metrics from hosts/pods |
+| **Logstash** (or equivalent) | Parse, enrich, buffer, route |
+| **Elasticsearch** | Index & search log documents (inverted index) |
+| **Kibana** | Explore logs, dashboards, saved searches |
+
+Typical HLD path: `App → stdout/file → agent → (Kafka optional) → Logstash → ES → Kibana`.
+
+**Good at:** “What happened for `requestId=…`?”, audit trails, error text search, security/compliance log retention.  
+**Watch:** storage cost, cardinality of fields, PII in logs, cluster ops.
+
+Managed cousins: Elastic Cloud, OpenSearch Service, Datadog Logs, CloudWatch Logs — same *role* (log platform).
+
+### ELK vs Prometheus & Grafana
+
+They solve **different signals**. Don’t pick one as “the monitoring tool.”
+
+| | **ELK (or Loki + UI)** | **Prometheus + Grafana** |
+|--|------------------------|---------------------------|
+| Primary signal | **Logs** (events, text) | **Metrics** (numbers over time) |
+| Query style | Full-text / structured log search | PromQL (rate, histogram_quantile) |
+| Alerting | Possible, but heavier; often secondary | First-class (Alertmanager, SLO burn) |
+| Cost at scale | Dominated by log volume & retention | Dominated by series cardinality |
+| Debug story | Reconstruct a single request’s trail | See fleet-wide latency/error **rates** |
+| HLD box | “Log pipeline + search” | “Metrics + dashboards + alerts” |
+
+| Question in the interview | Prefer |
+|---------------------------|--------|
+| p99 latency, error rate, CPU, saturation | **Prometheus → Grafana** (+ Alertmanager) |
+| Find exception stack / user id / audit line | **ELK** (or Loki) |
+| On-call “is payment SLO burning?” | **Metrics** first |
+| On-call “why did this charge fail?” | **Logs** (+ traces) |
+
+**Loki** (with Grafana): log aggregation with label-based indexing — lighter/cheaper than classic ELK for many K8s shops; weaker arbitrary full-text than ES. Mention as ELK alternative.
+
+**Interview line:** “Prometheus/Grafana for **metrics and SLO alerts**; ELK for **log search**. Grafana doesn’t replace Kibana for deep log forensics. Draw metrics + logs + traces.”
 
 ### Full observability trio
 
 | Signal | Examples | Tools (typical) |
 |--------|----------|-----------------|
 | Metrics | QPS, p99, CPU | Prometheus + Grafana |
-| Logs | Errors, audit | Loki / ELK |
+| Logs | Errors, audit | **ELK** / OpenSearch / Loki |
 | Traces | Request across services | Jaeger / Tempo / Zipkin |
 
-HLD: draw **metrics + logs + traces + alerts**; name Prometheus/Grafana when asked for concrete stack. See also [logging diagram](../diagrams/logging-and-monitoring-system/logging-and-monitoring-system.excalidraw).
+HLD: draw **metrics + logs + traces + alerts**. See also [logging diagram](../diagrams/logging-and-monitoring-system/logging-and-monitoring-system.excalidraw).
 
 ---
 

@@ -318,12 +318,12 @@ Chat systems usually need a **connection / presence service** plus durable messa
 
 ## Observability stack
 
-- **Logs** — what happened (structured JSON)
-- **Metrics** — aggregates (QPS, latency, error rate)
-- **Traces** — request across services
-- **Alerts** — on SLOs, not every blip
+- **Logs** — what happened (structured JSON) → ELK / Loki  
+- **Metrics** — aggregates (QPS, latency, error rate) → Prometheus + Grafana  
+- **Traces** — request across services → Jaeger / Tempo  
+- **Alerts** — on SLOs, not every blip  
 
-See [Logging and Monitoring](../diagrams/logging-and-monitoring-system/logging-and-monitoring-system.excalidraw).
+ELK vs Prom/Grafana: [Deployment & ops](./deployment-and-ops.md#elk-vs-prometheus-grafana). Diagram: [Logging and Monitoring](../diagrams/logging-and-monitoring-system/logging-and-monitoring-system.excalidraw).
 
 ---
 

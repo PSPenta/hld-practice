@@ -66,7 +66,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 
 | Doc | Why |
 |-----|-----|
-| [Deployment & ops](./deployment-and-ops.md) | Docker, K8s, canary/blue-green, Prometheus/Grafana |
+| [Deployment & ops](./deployment-and-ops.md) | Docker, K8s, canary/blue-green, **Prometheus/Grafana vs ELK** |
 
 ---
 
