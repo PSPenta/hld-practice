@@ -297,11 +297,13 @@ See [Distributed Queue](../diagrams/distributed-queue/distributed-queue.excalidr
 
 ## Search engines
 
-Inverted index over text (Elasticsearch, OpenSearch) for keyword search, filters, ranking — **not** a replacement for your primary DB.
+**Keyword:** inverted index (Elasticsearch / OpenSearch) — BM25, filters, shards.  
+**Semantic:** embeddings + ANN (vector DB or ES `dense_vector`).  
+Often **hybrid**. Not a replacement for your primary DB.
 
 Typical flow: write to DB → CDC / async indexer → search cluster → query API.
 
-See [Large Scale Search System](../diagrams/large-scale-search-system/large-scale-search-system.excalidraw).
+Depth: [Keyword & inverted indexes](./algorithms-and-indexes.md#keyword-search-inverted-indexes-elasticsearch) · [Semantic search](./algorithms-and-indexes.md#semantic-search) · diagram: [Large Scale Search](../diagrams/large-scale-search-system/large-scale-search-system.excalidraw).
 
 ## Real-time delivery
 

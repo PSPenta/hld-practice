@@ -216,6 +216,9 @@ Hierarchical index of **every concept** under `docs/`. Jump by keyword; study or
     - [Hot path vs durable store](./algorithms-and-indexes.md#hot-path-vs-durable-store)
     - [Deep-dive topics (Staff)](./algorithms-and-indexes.md#deep-dive-topics-staff)
     - [Vs full-text / vector search](./algorithms-and-indexes.md#vs-full-text-vector-search)
+  - [Keyword search & inverted indexes (Elasticsearch)](./algorithms-and-indexes.md#keyword-search-inverted-indexes-elasticsearch)
+  - [Semantic search](./algorithms-and-indexes.md#semantic-search)
+  - [Choosing proximity vs keyword vs semantic](./algorithms-and-indexes.md#choosing-proximity-vs-keyword-vs-semantic)
   - [Other index / structure prerequisites](./algorithms-and-indexes.md#other-index-structure-prerequisites)
 
 ## Reliability & correctness

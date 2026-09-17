@@ -1,8 +1,8 @@
 # Algorithms, Indexes & Crypto Basics
 
-Probabilistic structures, geo indexes, **proximity search**, and hashing vs encryption.
+Probabilistic structures, geo indexes, **proximity / keyword / semantic search**, and hashing vs encryption.
 
-← [README](../README.md) · [Docs index](./README.md)
+← [README](../README.md) · [Docs index](./README.md) · Related: [Data stores — Vector DB](./data-stores.md#knowledge-base-vs-vector-db) · [Large Scale Search diagram](../diagrams/large-scale-search-system/large-scale-search-system.excalidraw)
 
 ---
 
@@ -12,6 +12,9 @@ Probabilistic structures, geo indexes, **proximity search**, and hashing vs encr
 - [Hashing vs encryption](#hashing-vs-encryption)
 - [Geo-spatial indexes](#geo-spatial-indexes)
 - [Proximity search (“nearby”)](#proximity-search-nearby)
+- [Keyword search & inverted indexes (Elasticsearch)](#keyword-search-inverted-indexes-elasticsearch)
+- [Semantic search](#semantic-search)
+- [Choosing proximity vs keyword vs semantic](#choosing-proximity-vs-keyword-vs-semantic)
 - [Other index / structure prerequisites](#other-index-structure-prerequisites)
 
 ---
@@ -151,11 +154,160 @@ Never return raw cell results without an exact distance pass (edge errors).
 
 ### Vs full-text / vector search
 
+Geo answers **where**; keyword/semantic answer **what**. Full write-ups: [Keyword / Elasticsearch](#keyword-search-inverted-indexes-elasticsearch) · [Semantic search](#semantic-search) · [Chooser](#choosing-proximity-vs-keyword-vs-semantic).
+
 | | Proximity | Keyword / vector |
 |--|-----------|------------------|
 | Primary signal | Distance / ETA | Text relevance / embedding similarity |
 | Index | Geo cells, GEO, R-tree | Inverted index, ANN |
 | Often combined | “Thai near me” = geo filter **then** text/rank (or vice versa) | — |
+
+---
+
+## Keyword search & inverted indexes (Elasticsearch)
+
+**Problem:** find documents by **words / phrases / filters**, ranked by text relevance — product catalog, logs, help center, “search box” on a site.
+
+Common stack: **Elasticsearch / OpenSearch** (Lucene under the hood). **Not** your system of record — index a projection of OLTP/object data.
+
+### Inverted index (core idea)
+
+Forward index: `docId → tokens`.  
+**Inverted index:** `token → postings list` of docIds (plus positions, freqs for ranking/phrases).
+
+```text
+Docs:
+  D1: "red running shoes"
+  D2: "blue running shorts"
+
+After analyze (lowercase, maybe stem):
+  red      → [D1]
+  running  → [D1, D2]
+  shoes    → [D1]
+  blue     → [D2]
+  shorts   → [D2]
+
+Query "running shoes" → intersect / score postings → rank (e.g. BM25)
+```
+
+| Stage | What happens |
+|-------|----------------|
+| **Analyze** | Char filter → tokenizer → token filters (lowercase, stopwords, stem, synonyms) |
+| **Index** | Write tokens into inverted index (+ stored/doc values for filters & sort) |
+| **Query** | Analyze query the same way → look up terms → combine (AND/OR/phrase) → **score** |
+| **Rank** | **BM25** (default in ES) — TF/IDF-style relevance; boost fields (`title^3`) |
+
+**Filters** (brand, price, `geo_distance`, status) use doc values / bitsets — cheap, often **not** scored. Interview split: **query** (relevance) vs **filter** (exact constraints).
+
+### Elasticsearch on the HLD board
+
+```text
+Write path:  App → OLTP DB → (outbox / CDC / queue) → Indexer → ES cluster
+Read path:   Client → Search API → ES → (optional hydrate from DB) → response
+```
+
+| Concept | Interview meaning |
+|---------|-------------------|
+| **Index** | Named collection of docs (≈ “table” of searchable JSON) |
+| **Document** | One searchable unit (product, log line, article) |
+| **Shard** | Horizontal split of an index; parallelism + scale |
+| **Replica** | Copy of a shard for HA + read throughput |
+| **Primary** | You still own truth in Postgres/S3; ES can be rebuilt |
+
+**Why async indexer:** don’t dual-write DB + ES in one request without outbox — ES lag is OK if you state freshness SLO (seconds–minutes).
+
+### Autocomplete
+
+- **Edge n-grams** / completion suggester in ES, or  
+- **Trie / prefix index** in Redis/app for ultra-hot prefixes  
+
+Often both: trie/cache for typeahead, ES for full result page. See [Large Scale Search](../diagrams/large-scale-search-system/large-scale-search-system.excalidraw).
+
+### When keyword search fails (motivation for semantic)
+
+- Synonyms / intent: “sofa” vs “couch”, “login broken on phone” vs exact error string  
+- No shared tokens with the doc  
+- Multilingual fuzzy meaning  
+
+That’s when you add **semantic** (next) or synonym lists / query rewriting.
+
+### Interview pitfalls
+
+- Using ES as primary DB (weak multi-doc transactions, harder correctness)  
+- Sync dual-write without outbox/CDC  
+- Mapping explosion / high-cardinality fields as unbounded keywords  
+- Scoring everything — push exact constraints to **filters**  
+- Ignoring analyze asymmetry (index analyzer ≠ search analyzer → zero hits)
+
+**Interview line:** “Inverted index maps token → docs; ES shards that index. BM25 ranks; filters constrain. Source of truth stays in OLTP; we index via CDC/outbox.”
+
+---
+
+## Semantic search
+
+**Problem:** retrieve by **meaning**, not shared keywords — RAG, “similar products”, support search (“can’t sign in on iOS”).
+
+### How it works
+
+```text
+Index time:  text chunk → embedding model → vector → ANN index (HNSW / IVF…)
+Query time:  user text → same model → vector → top-k nearest neighbors → optional rerank
+```
+
+| Piece | Role |
+|-------|------|
+| **Embedding** | Dense vector capturing semantics (same model at index + query) |
+| **ANN index** | Approximate nearest neighbor (exact kNN too slow at scale) |
+| **Stores** | Pinecone, Weaviate, Milvus, Qdrant, **pgvector**, ES/OpenSearch `dense_vector` |
+| **Rerank** | Cross-encoder / BM25 blend on a small candidate set |
+
+### Semantic vs keyword
+
+| | **Keyword (inverted / BM25)** | **Semantic (embeddings)** |
+|--|------------------------------|---------------------------|
+| Match | Shared tokens / phrases | Nearby in vector space |
+| Good at | SKUs, exact names, logs, boolean filters | Paraphrase, intent, “messy” language |
+| Weak at | Synonyms without config; conceptual queries | Exact SKU / rare tokens; needs embed cost |
+| Explainability | Highlight matched terms | Harder (“why this doc?”) |
+| Freshness | Reindex tokens | Re-embed on content change (costly) |
+
+### Hybrid (Staff default for product search / RAG)
+
+```text
+Query → (optional sparse BM25) + (dense ANN) → fuse scores / RRF → filters (ACL, geo, price) → rerank → results
+```
+
+- **ACL / tenant filters** must apply on **candidates** (don’t leak neighbor vectors across tenants).  
+- RAG: retrieve chunks → LLM; cite KB ids — vector DB is not the knowledge base. Detail: [Knowledge base vs Vector DB](./data-stores.md#knowledge-base-vs-vector-db).
+
+### MediBuddy / marketplace example
+
+| Intent | Prefer |
+|--------|--------|
+| “Dr. Sharma cardiologist Koramangala” | Keyword + geo filter |
+| “chest pain doctor nearby” | Semantic and/or synonym + **proximity** |
+| “labs like vitamin panel” | Semantic or curated taxonomy + keyword |
+
+### Interview pitfalls
+
+- Embedding **without** the same model version at query time  
+- No ACL filter on ANN results  
+- Replacing ES entirely when users still search SKUs / order ids  
+- Ignoring embed + ANN **cost/latency** in NFR  
+
+**Interview line:** “Semantic = embed + ANN. Keyword = inverted index + BM25. Production search is usually **hybrid** plus filters; OLTP remains source of truth.”
+
+---
+
+## Choosing proximity vs keyword vs semantic
+
+| Need | Primary tool |
+|------|----------------|
+| Near me / ETA / drivers | **Proximity** (geo index) |
+| Typeahead, SKU, logs, “exact-ish” text | **Keyword / ES** |
+| Paraphrase, RAG, “similar meaning” | **Semantic / vector** |
+| “Italian near me” | Geo **filter** + keyword/semantic **rank** |
+| Resume AI / SuperStocks-style RAG | KB + chunk + vector (+ optional BM25) |
 
 ---
 
@@ -166,11 +318,12 @@ Never return raw cell results without an exact distance pass (edge errors).
 | **B-Tree** | Default relational index; great range scans |
 | **Hash index** | Equality only; not range |
 | **LSM Tree** | Write-optimized (Cassandra, RocksDB); compaction trade-offs — see [Data stores](./data-stores.md#lsm-trees-storage-engine) |
-| **Inverted index** | Token → doc IDs (search) |
+| **Inverted index** | Token → doc IDs — see [Keyword search](#keyword-search-inverted-indexes-elasticsearch) |
+| **ANN / HNSW** | Approx nearest vectors — see [Semantic search](#semantic-search) |
 | **Trie** | Prefix / autocomplete |
 | **Skip list** | Ordered structure in Redis sorted sets internals (conceptual) |
 | **Merkle tree** | Anti-entropy / sync verification (Dynamo-style) |
 | **HyperLogLog** | Approx distinct counts (cardinality) |
 | **Count-Min Sketch** | Approx frequencies |
 
-Autocomplete / search designs lean on **trie + inverted index** — see [Large Scale Search](../diagrams/large-scale-search-system/large-scale-search-system.excalidraw).
+Autocomplete / search designs lean on **trie + inverted index** (+ optional vectors) — see [Large Scale Search](../diagrams/large-scale-search-system/large-scale-search-system.excalidraw).

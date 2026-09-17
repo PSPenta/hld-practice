@@ -136,6 +136,8 @@ User query → embed → ANN top-k → (optional rerank / keyword filter) → LL
 Often **hybrid**: keyword (BM25/ES) + vector, with ACL filters from the KB.  
 Vector DB is not a replacement for the KB — it’s a **retrieval index** over content that still lives somewhere authoritative.
 
+Full search comparison (keyword inverted index vs semantic vs proximity): [Algorithms & indexes](./algorithms-and-indexes.md#choosing-proximity-vs-keyword-vs-semantic).
+
 ---
 
 ## LSM trees (storage engine)

@@ -183,6 +183,7 @@ Related practice already in repo: [Notification System](./diagrams/notification-
 | Rate Limiter | ❌ | — |
 | Uber / Ride Sharing | ❌ | — |
 | Proximity Search / Nearby | ❌ | — ([notes](./docs/algorithms-and-indexes.md#proximity-search-nearby)) |
+| Keyword / ES / Semantic Search | ❌ | — ([notes](./docs/algorithms-and-indexes.md#choosing-proximity-vs-keyword-vs-semantic)) |
 | YouTube / Video Streaming | ❌ | — |
 | Dropbox / File Storage | ❌ | — |
 | Google Docs / Collaborative Editor | ❌ | — |
