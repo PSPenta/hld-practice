@@ -13,6 +13,7 @@ Race conditions, multi-step workflows, and consensus — when “just write to t
 - [Two-phase commit (2PC) & 3PC](#two-phase-commit-2pc-3pc)
 - [Saga](#saga)
 - [Raft (consensus)](#raft-consensus)
+- [Leader / coordinator dies mid-transaction](#leader-coordinator-dies-mid-transaction)
 - [ZooKeeper / etcd / Consul (coordination services)](#zookeeper-etcd-consul-coordination-services)
 - [Other coordination prerequisites](#other-coordination-prerequisites)
 
@@ -68,7 +69,7 @@ When you can’t:
 2. **Commit/Abort** — if all yes → commit; else abort
 
 **Pros:** Strong atomicity across resources (classic XA).  
-**Cons:** Blocking if coordinator dies after prepare; high latency; poor for long / high-scale microservices.
+**Cons:** Blocking if coordinator dies after prepare (detail: [Leader / coordinator dies mid-transaction](#leader-coordinator-dies-mid-transaction)); high latency; poor for long / high-scale microservices.
 
 ### 3PC
 
@@ -90,7 +91,7 @@ On failure at 3: compensate hotel, compensate flight.
 | **Choreography** | Each service emits events; others react (simple, harder to trace) |
 | **Orchestration** | Central saga orchestrator calls steps (clearer control flow) |
 
-**Properties:** Not ACID atomic across the whole saga — intermediate states exist. Need idempotent steps and well-defined compensations ( whicaren’t always perfect reverses).
+**Properties:** Not ACID atomic across the whole saga — intermediate states exist. Need idempotent steps and well-defined compensations (which aren’t always perfect reverses).
 
 Great fit: orders, multi-step bookings, provisioning. Poor fit: bank ledger that must never show money in two places without a clear model.
 
@@ -112,6 +113,48 @@ Related: **Paxos** (harder to explain), **quorum N/2+1**, **split brain** preven
 
 ---
 
+## Leader / coordinator dies mid-transaction
+
+“Leader dies mid-tx” means different things. Clarify which leader in the interview.
+
+### 2PC coordinator dies
+
+| When it dies | What cohorts see | Outcome |
+|--------------|------------------|---------|
+| **Before** any Prepare | Nothing locked | Tx never started — safe to retry with a new coordinator / new tx id |
+| **After Prepare, before Commit/Abort** | Cohorts are **prepared** (resources locked) | **Blocking:** they don’t know commit vs abort until a coordinator returns |
+| **After** Commit/Abort reached some but not all | Partial delivery | Recovery must **replay the decision** so everyone ends the same |
+
+**Recovery:** new coordinator reads a durable **decision log**. If Commit was decided → send Commit to all; if Abort → Abort; if **no decision logged** yet → typically **Abort** (or stay blocked — this is why 2PC is painful at scale).
+
+### Raft / etcd-style leader dies
+
+Writes: client → leader → replicate to **majority** → commit → apply.
+
+| When leader dies | Result |
+|------------------|--------|
+| Log entry **not** on a majority | Not committed — **lost**; client retries; new leader won’t have it |
+| Entry **on a majority**, client got no ACK | Still **committed**; new leader has it; client retry needs **idempotency** |
+| Died after commit, mid-apply | Followers/new leader catch up from the log; apply in order |
+
+This is atomicity of the **replicated log**, not a cross-service business transaction. Multi-service flows still use saga/outbox on top.
+
+### Saga orchestrator dies
+
+Steps already **locally committed**. Orchestrator death does **not** roll back the world.
+
+- New orchestrator (or choreography consumer) resumes from **persisted saga state** (which step completed)
+- Retries the next step **idempotently**
+- On hard failure → run **compensations**
+
+User may briefly see intermediate states (“hotel reserved, payment pending”) — **eventual** consistency, not 2PC atomicity.
+
+### Interview line
+
+> “2PC coordinator death after prepare **blocks** cohorts on locks until decision-log recovery. Raft leader death: only **majority-replicated** entries survive; clients retry with idempotency. For product flows we prefer **sagas/outbox** so a dead orchestrator **resumes or compensates** — we don’t hold cross-service locks.”
+
+---
+
 ## ZooKeeper / etcd / Consul (coordination services)
 
 Externalize:
@@ -122,6 +165,8 @@ Externalize:
 - Distributed locks (carefully)
 
 Don’t put high-QPS user data here — keep coordination **low volume, high importance**.
+
+**Kafka:** classic clusters used ZooKeeper for **controller election and partition metadata** (not for message payloads). Modern Kafka replaces that with **KRaft**. SQS has no equivalent in your diagram (AWS-managed); RabbitMQ uses **in-broker clustering / Raft quorum queues**, not ZK. Full comparison: [Messaging — Cluster metadata & coordination](./messaging-and-pipelines.md#cluster-metadata-coordination-zookeeper-kraft-and-alternatives).
 
 ---
 

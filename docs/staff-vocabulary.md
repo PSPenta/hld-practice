@@ -82,7 +82,7 @@ Direction follows **the request or data flow**, not org chart or “importance.�
 | **Load shedding** | Drop or reject low-priority work under overload | Protect critical path (OTP > promo) |
 | **Rate limiting** | Cap requests at edge (per IP, tenant, API key) | Protects **your** service and **downstream** |
 | **Throttling** | Slow down accepted work (token bucket) | Smoother than hard reject; used at vendor APIs |
-| **Circuit breaker** | Stop calling a failing downstream for a cooldown | Prevents cascading failure and retry amplification |
+| **Circuit breaker** | Stop calling a failing downstream for a cool-down; fail fast / fallback; half-open probe | Prevents cascading failure and retry amplification — full write-up: [Core concepts](./core-concepts.md#circuit-breaker) |
 | **Graceful degradation** | Reduced feature set under stress | “Search stale OK; payments must stay strong” |
 | **Cold vs warm path** | First request (cache miss, JIT, new pod) vs steady | Cold paths set tail latency — mention warmup and caches |
 | **SLI / SLO / error budget** | What you measure, target, allowed bad window | See [Reliability & SLOs](./reliability-and-slos.md) |

@@ -51,14 +51,14 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 |-----|-----|
 | [Data stores](./data-stores.md) | ACID/BASE, SQL/NoSQL, OLAP, TiDB/TSDB, LSM, Vector DB, **DB deploy (region / read vs write)** |
 | [Caching](./caching.md) | Stampede, avalanche, penetration, invalidation, eviction |
-| [Messaging & pipelines](./messaging-and-pipelines.md) | Queue vs pub/sub, Kafka/Rabbit/SQS, **Kinesis**, **Lambda vs Kappa**, WAL, CDC, Spark/Flink |
+| [Messaging & pipelines](./messaging-and-pipelines.md) | Queue vs pub/sub, Kafka/Rabbit/SQS, **ZK→KRaft**, **Kinesis**, **Lambda vs Kappa**, WAL, CDC, Spark/Flink |
 | [Algorithms & indexes](./algorithms-and-indexes.md) | Bloom, geo, **proximity search**, hash vs encrypt |
 
 ### D. Reliability & correctness (Staff differentiator)
 
 | Doc | Why |
 |-----|-----|
-| [Distributed coordination](./distributed-coordination.md) | Races, 2PC/3PC, Saga, Raft, quorum |
+| [Distributed coordination](./distributed-coordination.md) | Races, 2PC/3PC, Saga, Raft, **leader dies mid-tx**, quorum |
 | [Reliability & SLOs](./reliability-and-slos.md) | SLI/SLO/SLA, error budget, multi-region, blast radius, **exponential backoff** |
 | [Security & compliance](./security-and-compliance.md) | Authn/z, PCI-DSS, secrets, threat model (fintech bar) |
 

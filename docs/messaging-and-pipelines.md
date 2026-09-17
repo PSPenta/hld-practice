@@ -10,6 +10,7 @@ How systems move data asynchronously: queues, streams, logs, and processors.
 
 - [Pub/Sub vs Message Queue](#pubsub-vs-message-queue)
 - [Kafka vs RabbitMQ vs SQS](#kafka-vs-rabbitmq-vs-sqs)
+- [Cluster metadata & coordination (ZooKeeper, KRaft, and alternatives)](#cluster-metadata-coordination-zookeeper-kraft-and-alternatives)
 - [AWS Kinesis](#aws-kinesis)
 - [Lambda vs Kappa architecture](#lambda-vs-kappa-architecture)
 - [Write-ahead log (WAL) & MySQL binlog](#write-ahead-log-wal-mysql-binlog)
@@ -81,6 +82,76 @@ Same three jobs (work queue, pub/sub, stream), different parts. None delete a me
 Parallelize by **more groups/partitions/keys**, not by sharing one ordered stream across many workers.
 
 See [Distributed Queue](../diagrams/distributed-queue/distributed-queue.excalidraw).
+
+---
+
+## Cluster metadata & coordination (ZooKeeper, KRaft, and alternatives)
+
+Brokers need a **control plane**: who is in the cluster, who is **controller/leader**, where each partition/queue replica lives, and ISR / membership changes. That is **not** the data path (your `OrderPlaced` payloads).
+
+### What ZooKeeper did for Kafka (classic)
+
+[ZooKeeper](./distributed-coordination.md#zookeeper-etcd-consul-coordination-services) is a small **quorum coordination** service (ZAB consensus). Older Kafka clusters used it to store/elect:
+
+| Job | Why it matters |
+|-----|----------------|
+| **Controller election** | One broker is controller: assigns leaders for partitions, reacts to broker fail/join |
+| **Broker registration** | Live membership of the cluster |
+| **Topic / partition metadata** | Which broker leads which partition; replica assignments |
+| **ACL / config (historically)** | Cluster-wide config bits (much of this moved over time) |
+
+**Not ZK’s job:** storing consumer messages or high-QPS offsets (offsets live in Kafka’s `__consumer_offsets` topic in modern setups).
+
+**Pain:** you operated **two** systems (Kafka + ZK). ZK outage or mis-sizing blocked controller election even if disks with data were fine. Hence the move to KRaft.
+
+```text
+Classic:  Producers/Consumers → Kafka brokers ← metadata/election → ZooKeeper ensemble
+KRaft:    Producers/Consumers → Kafka brokers (controllers use an internal metadata log / Raft)
+```
+
+### KRaft (Kafka without ZooKeeper)
+
+**KRaft** = Kafka’s own **Raft**-based metadata quorum (controller voters). Topic/broker metadata lives in an internal log; no external ZK.
+
+| | Classic (ZK) | KRaft |
+|--|--------------|-------|
+| Extra cluster | Yes — ZK ensemble | No |
+| Controller | Elected via ZK | Controllers form a Raft quorum inside Kafka |
+| Interview default today | “Legacy / still seen in older deploys” | “Modern Kafka / MSK paths moving here” |
+
+**Interview line:** “ZK coordinated Kafka’s **control plane** (controller, membership, partition leaders). Data stayed on brokers. New Kafka uses **KRaft** so metadata is Raft inside Kafka — one less moving part.”
+
+### Alternatives: who does this job in SQS and RabbitMQ?
+
+Same *need* (membership, leaders, failover) — different *owner*.
+
+| System | Coordination / metadata | What you operate |
+|--------|-------------------------|------------------|
+| **Kafka + ZK** | External ZK ensemble | Brokers **and** ZK |
+| **Kafka + KRaft** | Internal Raft metadata quorum | Brokers only (controllers are Kafka nodes) |
+| **Amazon SQS** | **AWS-owned** control plane — no ZK, no broker cluster for you | Queue APIs only (regions, quotas, redrive). Failover/sharding is Amazon’s problem |
+| **Amazon MQ (managed Rabbit)** | AWS manages the broker/cluster control plane | You configure queues/exchanges; not ZK |
+| **Self-managed RabbitMQ** | **Built-in** clustering (Erlang distribution + membership). **Quorum queues** use **Raft** inside Rabbit for replicated queue leadership — **not ZooKeeper** | Rabbit nodes only (optional peer-discovery plugin: DNS/K8s/etcd — discovery ≠ Kafka-style ZK metadata store) |
+| **Kinesis** | AWS control plane + shard map | Managed; closest “Kafka-like” without ZK |
+
+**RabbitMQ detail (interview-useful):**
+
+- **Classic mirrored queues** — older HA; leader + mirrors, promotion on fail (deprecated path in favor of quorum).  
+- **Quorum queues** — Raft consensus per queue; elect queue leader; durable under node loss.  
+- You do **not** draw ZooKeeper in front of Rabbit unless some org-specific tool uses it for **service discovery** only.
+
+**SQS detail:** there is no “controller election” in your diagram. Draw **queue + visibility timeout + optional DLQ**. Multi-AZ durability and partition placement are behind the API.
+
+### HLD board cheat sheet
+
+| If you draw… | Say… |
+|--------------|------|
+| Self-hosted Kafka (old) | Brokers + **ZK** (or note migration) |
+| Modern Kafka / many MSK setups | Brokers + **KRaft** (no ZK box) |
+| SQS | No coordination box |
+| RabbitMQ | Cluster / **quorum queues (Raft)** — not ZK |
+
+Related: [ZooKeeper / etcd / Consul](./distributed-coordination.md#zookeeper-etcd-consul-coordination-services) · [Raft](./distributed-coordination.md#raft-consensus).
 
 ---
 
