@@ -14,13 +14,13 @@ Open files under [`diagrams/`](./diagrams) with the [Excalidraw extension](https
 | [How a typical HLD round runs](#how-a-typical-hld-round-runs) | 45–60 min timeline |
 | [Standard approach (checklist)](#standard-approach-checklist) | End-to-end design steps |
 | [Prerequisites (grouped)](#prerequisites-grouped) | Links into [`docs/`](./docs/README.md) |
-| [Topic catalog](./docs/topic-catalog.md) | Nested sneak peek of every concept |
+| [Topic catalog](./docs/topic-catalog.md) | **Central topic picker** — every concept → deep link |
 | [Quick references (YouTube)](#quick-references-youtube) | Deep dives & walkthrough playlists |
 | [How to practice](#how-to-practice) | Using diagrams in this repo |
 | [Popular HLDs](#popular-hlds) | Catalog ✅/⚠️/❌ + folder links |
 | [Prep plan](./docs/prep-plan.md) | Daily/weekly DSA · LLD · HLD schedule |
 
-**Docs curriculum:** [docs/README.md](./docs/README.md) (study order A→E). **All topics at a glance:** [topic catalog](./docs/topic-catalog.md). Each long doc also has its own **Index**.
+**Docs curriculum:** [docs/README.md](./docs/README.md) (study order A→E). **Pick any topic:** [topic catalog](./docs/topic-catalog.md) (central index with deep links). Each long doc also has its own **Index**.
 
 ---
 
@@ -104,7 +104,7 @@ You drive. Interviewers push with “100× traffic?” and “this node dies?”
 
 ## Prerequisites (grouped)
 
-Don’t learn as a flat list — follow the curriculum in [`docs/README.md`](./docs/README.md). For a nested sneak peek of every concept, use the [topic catalog](./docs/topic-catalog.md).
+Don’t learn as a flat list — follow the curriculum in [`docs/README.md`](./docs/README.md). To jump to any concept’s full write-up, use the [topic catalog](./docs/topic-catalog.md).
 
 | Group | Docs |
 |-------|------|
@@ -112,7 +112,7 @@ Don’t learn as a flat list — follow the curriculum in [`docs/README.md`](./d
 | **Foundation** | [Building blocks](./docs/building-blocks.md) · [Service architecture](./docs/service-architecture.md) · [Core concepts](./docs/core-concepts.md) · [Scaling](./docs/scaling.md) · [Networking & media](./docs/networking-and-media.md) |
 | **Data & messaging** | [Data stores](./docs/data-stores.md) · [Caching](./docs/caching.md) · [Messaging & pipelines](./docs/messaging-and-pipelines.md) · [Algorithms & indexes](./docs/algorithms-and-indexes.md) |
 | **Reliability & correctness** | [Distributed coordination](./docs/distributed-coordination.md) · [Reliability & SLOs](./docs/reliability-and-slos.md) · [Security & compliance](./docs/security-and-compliance.md) |
-| **Delivery** | [Deployment & ops](./docs/deployment-and-ops.md) |
+| **Delivery** | [Deployment & ops](./docs/deployment-and-ops.md) · [Prom/Grafana setup](./docs/prometheus-grafana-setup.md) |
 
 ---
 

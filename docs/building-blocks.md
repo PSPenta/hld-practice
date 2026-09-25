@@ -219,12 +219,14 @@ In-memory store for hot data to cut DB load and latency.
 
 ### Patterns
 
-| Pattern | Behavior |
-|---------|----------|
-| **Cache-aside** | App reads cache → miss → DB → fill cache (most common) |
-| **Read-through** | Cache layer loads from DB on miss |
-| **Write-through** | Write cache + DB together |
-| **Write-behind** | Write cache first; async flush to DB (faster, riskier) |
+| Pattern | Behavior | When |
+|---------|----------|------|
+| **Cache-aside** | App reads cache → miss → DB → fill cache (most common) | Default for shared hot reads |
+| **Read-through** | Cache layer loads from DB on miss | Same idea; fill in library |
+| **Write-through** | Write cache + DB together | Need cache fresh on write; slower writes |
+| **Write-behind** | Write cache first; async flush to DB (faster, riskier) | Rare — durability risk |
+
+**Myth:** “Many users read one key → use write-through.” That’s still **cache-aside** + stampede protection. Detail: [Caching](./caching.md).
 
 ### Eviction
 
@@ -284,8 +286,8 @@ Decouple producers from consumers; smooth spikes; enable async work.
 ### Delivery semantics
 
 - **At-most-once** — may lose messages
-- **At-least-once** — may duplicate → design **idempotent** consumers
-- **Exactly-once** — hard; usually “effectively once” via idempotency + dedupe
+- **At-least-once** — may duplicate → design **idempotent** consumers (dedupe table / unique natural key)
+- **Exactly-once** — hard end-to-end; usually “**effectively once**” = at-least-once + idempotent side effects (not a special consumer mode you flip on)
 
 ### Ops concepts
 
@@ -323,7 +325,7 @@ Chat systems usually need a **connection / presence service** plus durable messa
 - **Traces** — request across services → Jaeger / Tempo  
 - **Alerts** — on SLOs, not every blip  
 
-ELK vs Prom/Grafana: [Deployment & ops](./deployment-and-ops.md#elk-vs-prometheus-grafana). Diagram: [Logging and Monitoring](../diagrams/logging-and-monitoring-system/logging-and-monitoring-system.excalidraw).
+ELK vs Prom/Grafana: [Deployment & ops](./deployment-and-ops.md#elk-vs-prometheus-grafana). Setup detail: [Prometheus & Grafana setup](./prometheus-grafana-setup.md). Diagram: [Logging and Monitoring](../diagrams/logging-and-monitoring-system/logging-and-monitoring-system.excalidraw).
 
 ---
 

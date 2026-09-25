@@ -1,11 +1,17 @@
-# Interview Prep Plan (DSA · LLD · HLD)
+# Interview Prep Plan (DSA · LLD · HLD) — Full-time Staff / SDE3
 
-Daily/weekly schedule for cracking **SDE3**-style loops at FAANG / Razorpay / tier-1 product companies.
+Daily/weekly schedule for **SDE3 / Staff**-style loops (FAANG + fintech like Razorpay).
 
-**Assumes:** this repo for HLD, [lld-practice](https://github.com/PSPenta/lld-practice) for LLD, LeetCode (Blind 75+) for DSA.
+**Context this plan assumes**
 
-**Language (Go / JS):** no separate daily slot — practice by **solving DSA and writing LLD in Go and/or JS/TS** (alternate languages by week or by problem).  
-**HLD theory:** **1–2× per week** focused doc revision (not every day).
+| Fact | Implication |
+|------|-------------|
+| **No office work** | ~8h deep prep/day is sustainable; protect sleep & 1 rest half-day |
+| **HLD docs = high-level knowledge** | Need **frequent re-reads** (short daily + 2 deeper theory blocks/week), not one pass |
+| **HLD** | This repo — [docs curriculum](./README.md) · [topic catalog](./topic-catalog.md) · [diagrams](../README.md#popular-hlds) |
+| **LLD** | [lld-practice](https://github.com/PSPenta/lld-practice) — JS/Go/Backend docs + `problems/` + code under `JavaScript/` · `Go/` |
+| **DSA** | Striver playlists (topics below) + LeetCode timed drills in **Go or JS** |
+| **Languages** | Sharpened via DSA + LLD + **scheduled re-read** of Node/Go docs (not a separate “course”) |
 
 ← [README](../README.md) · [Docs index](./README.md)
 
@@ -14,14 +20,17 @@ Daily/weekly schedule for cracking **SDE3**-style loops at FAANG / Razorpay / ti
 ## Index
 
 - [What this plan covers](#what-this-plan-covers)
-- [Are these resources enough?](#are-these-resources-enough)
-- [Day window (11:00 – 21:00)](#day-window-1100-2100)
+- [Resources map](#resources-map)
+- [Day window (full-time)](#day-window-full-time)
 - [Daily targets](#daily-targets)
 - [Weekly rhythm](#weekly-rhythm)
 - [Weekly targets](#weekly-targets)
-- [Theory revision (1–2× / week)](#theory-revision-1-2-week)
-- [Language via DSA & LLD](#language-via-dsa-lld)
-- [8–10 week phases](#8-10-week-phases)
+- [Spaced revision (HLD + LLD lang docs)](#spaced-revision-hld--lld-lang-docs)
+- [DSA — Striver topic rotation](#dsa--striver-topic-rotation)
+- [LLD — language docs then problems](#lld--language-docs-then-problems)
+- [HLD — theory + spoken redesign](#hld--theory--spoken-redesign)
+- [12-week phases](#12-week-phases)
+- [Staff / SDE3 bar (weekly self-check)](#staff--sde3-bar-weekly-self-check)
 - [Win condition](#win-condition)
 
 ---
@@ -30,48 +39,53 @@ Daily/weekly schedule for cracking **SDE3**-style loops at FAANG / Razorpay / ti
 
 | Track | How |
 |-------|-----|
-| **DSA** | Timed LeetCode in **Go or JS** |
-| **LLD** | Design + code in lld-practice in **Go or JS/TS** |
-| **HLD practice** | Spoken redesigns from diagrams |
-| **HLD theory** | **1–2 sessions/week** — read docs, notes, then apply next redesign |
-| **Language depth** | Embedded in DSA + LLD (idioms, concurrency, errors) — not a standalone block |
-| **Behavioral** | Sunday + story bank |
+| **DSA** | Striver topic video → **timed** LeetCode in Go/JS → revise mistakes |
+| **LLD** | Lang/runtime docs (JS/Go/Backend) → method → **code** a problem |
+| **HLD practice** | Spoken redesign 45–50 min from diagrams / resume |
+| **HLD theory** | Short **daily** re-read + **2×/week** deep doc sessions |
+| **Lang revision** | **1–2×/week** Node or Go README sections (lld-practice) |
+| **Behavioral** | STAR bank + Sunday light pass |
 
 ---
 
-## Are these resources enough?
+## Resources map
 
-| Track | Resource | Verdict |
-|-------|----------|---------|
-| **HLD** | This repo (docs + diagrams) | Enough with weekly theory + timed spoken redesigns |
-| **LLD** | [lld-practice](https://github.com/PSPenta/lld-practice) | Enough if you **code** designs |
-| **DSA** | Blind 75 + ongoing LeetCode | Required; push into Medium/Hard mix |
-| **Tech** | Go / Node on resume | Kept sharp via DSA/LLD in those languages |
-| **You** | Ownership stories | Strong for Razorpay / fintech SDE3 |
+| Track | Primary | How to use |
+|-------|---------|------------|
+| **HLD** | This repo | [Curriculum A→E](./README.md) for first pass; [topic catalog](./topic-catalog.md) to jump; redesign ✅/⚠️ diagrams aloud |
+| **LLD method** | [lld-practice README §1–22](https://github.com/PSPenta/lld-practice) | Memorize Understand → Model → Design → APIs → Deepen → Evolve |
+| **Node / JS** | [JavaScript/README.md](https://github.com/PSPenta/lld-practice/blob/master/JavaScript/README.md) | Event loop, promises, streams — re-read weekly slices |
+| **Go** | [Go/README.md](https://github.com/PSPenta/lld-practice/blob/master/Go/README.md) | GMP, channels, context — re-read weekly slices |
+| **Backend / REST** | [Backend/README.md](https://github.com/PSPenta/lld-practice/blob/master/Backend/README.md) | Idempotency, pagination, auth — before payment/parking LLDs |
+| **LLD code** | `problems/` + `JavaScript/` · `Go/` | Design first, then implement in interview language |
+| **DSA** | Striver YT (topics below) + LeetCode | Video for pattern → **you** code without pausing |
 
-**Still add:** weekly mocks, STAR stories, company depth (payments/ledger/idempotency).
+**Still add:** 1 coding mock + 1 HLD mock / week from week 3; company depth (payments, ledger, idempotency) from resume.
 
 ---
 
-## Day window (11:00 – 21:00)
+## Day window (full-time)
 
-~10 hours total. Typical: **office ~3h**, **lunch ~45m**, **breaks ~45m** → **~5.5h deep prep**.
+~**8h deep work** + breaks. Window example **10:00 – 20:00** (shift if you’re sharper mornings).
 
 | Time | Block | Focus |
 |------|--------|--------|
-| 11:00 – 11:15 | Warm-up | Plan day / yesterday mistakes |
-| 11:15 – 13:15 | **DSA** (2h) | Timed problems in Go **or** JS → review |
-| 13:15 – 14:00 | Lunch + walk | Off screens |
-| 14:00 – 17:00 | **Office** (2–4h; default 3h) | Real work only |
-| 17:00 – 17:15 | Break | |
-| 17:15 – 18:45 | **HLD or LLD** (1.5h) | Alternate per [weekly rhythm](#weekly-rhythm) |
-| 18:45 – 19:00 | Break | |
-| 19:00 – 20:30 | Other design track or DSA weak topic (1.5h) | |
-| 20:30 – 21:00 | Review | Mistakes + 1 takeaway |
+| 10:00 – 10:15 | Plan | Yesterday mistakes + today’s 3 outcomes |
+| 10:15 – 12:45 | **DSA** (2.5h) | Striver pattern / timed LC in Go **or** JS + review |
+| 12:45 – 13:30 | Lunch + walk | Off screens |
+| 13:30 – 13:50 | **Spaced re-read** (20m) | HLD **or** Node/Go doc slice (see [spaced revision](#spaced-revision-hld--lld-lang-docs)) |
+| 13:50 – 16:20 | **Design A** (2.5h) | **HLD** spoken redesign **or** **LLD** design+code (alternate days) |
+| 16:20 – 16:40 | Break | |
+| 16:40 – 18:40 | **Design B / deep theory** (2h) | Other design track, **or** HLD deep theory (2×/week), **or** lang doc deep pass |
+| 18:40 – 19:00 | Break | |
+| 19:00 – 19:45 | Weak-topic / mock lite | DSA redo, or 45m mini-HLD deep dive (SLO/failure) |
+| 19:45 – 20:00 | Log | 5 bullets: learned / stuck / tomorrow |
 
-**Flex:** office 2h → +1h DSA/mock; office 4h → one evening design block (1.5h) + shorter review.
+**Flex**
 
-**Theory days (1–2×/week):** replace one evening 1.5h block with **doc revision** (see below), or use part of Saturday.
+- Heavy mock day: collapse Design B into a full 2h mock.  
+- Burnout risk: cut 19:00 block first; keep DSA + one design + 20m re-read.  
+- **Sun afternoon optional off** after behavioral.
 
 ---
 
@@ -79,26 +93,28 @@ Daily/weekly schedule for cracking **SDE3**-style loops at FAANG / Razorpay / ti
 
 | Track | Target |
 |-------|--------|
-| **DSA** | **2** timed problems (or 1 Hard + 1 Medium) in Go or JS + review |
-| **HLD** | **1** spoken redesign (40–50 min) on HLD days |
-| **LLD** | **1** design coded in Go or JS/TS on LLD days |
-| **Don’t** | Video binge without coding / redrawing |
+| **DSA** | **3** timed problems **or** 2 Medium + 1 Hard (Go/JS) + written mistake note |
+| **HLD or LLD** | **1** full piece: spoken HLD **or** coded LLD |
+| **Re-read** | **20m** spaced — HLD docs **or** lld-practice JS/Go/Backend |
+| **Don’t** | Binge Striver / docs without coding or redrawing |
 
 ---
 
 ## Weekly rhythm
 
-| Day | Morning (2h) | Evening (after office) |
-|-----|----------------|-------------------------|
-| **Mon** | DSA | **HLD** redesign |
-| **Tue** | DSA | **LLD** + code |
-| **Wed** | DSA | **HLD** redesign |
-| **Thu** | DSA | **LLD** |
-| **Fri** | DSA | **HLD** Staff extras **or** mock **or** theory session |
-| **Sat** | DSA 2–3h | **Theory** 1–1.5h (if not done Fri) + HLD/LLD mock or practice |
-| **Sun** | Light DSA 1h | **Behavioral** 1h + rest |
+| Day | Morning DSA | Mid (Design A) | Late (Design B / theory) | 20m re-read |
+|-----|-------------|----------------|--------------------------|-------------|
+| **Mon** | Striver topic + LC | **HLD** redesign | LLD code **or** HLD Staff deep-dive | HLD doc |
+| **Tue** | Same topic / LC | **LLD** design + code | Lang doc deep (JS **or** Go) | Node/Go |
+| **Wed** | Topic rotate / LC | **HLD** redesign | **HLD theory deep** (60–90m) | HLD doc |
+| **Thu** | LC + mixed review | **LLD** + code | Second LLD lite **or** Backend REST doc | Node/Go |
+| **Fri** | LC weak topics | **HLD** Staff extras / resume HLD | **Coding mock** (2h) | HLD or catalog skim |
+| **Sat** | Contest or 3h LC | **HLD mock** (45–60m spoken) | **HLD theory deep** + spaced backlog | Topic catalog jump |
+| **Sun** | Light DSA 60–90m | **Behavioral** STAR (60m) | Rest / optional weak HLD re-read | Optional |
 
-Pick **Fri evening and/or Sat** for theory so it happens **1–2× weekly** without eating every design day.
+**Theory deep = 2×/week** (Wed + Sat default).  
+**Lang doc deep = 1–2×/week** (Tue and/or Thu).  
+**Past revision = every day 20m** + weekend catalog pass.
 
 ---
 
@@ -106,57 +122,140 @@ Pick **Fri evening and/or Sat** for theory so it happens **1–2× weekly** with
 
 | Track | Weekly |
 |-------|--------|
-| **DSA** | **12–15** problems (mix languages across the week); 1 contest if possible |
-| **HLD practice** | **4–5** spoken designs from [Popular HLDs](../README.md#popular-hlds) |
-| **HLD theory** | **1–2** sessions (2–4 doc sections total) — notes + apply next redesign |
-| **LLD** | **4–5** designs coded in Go/JS |
-| **Mocks** | **1** coding + **1** HLD |
-| **Behavioral** | **3–5** STAR stories |
+| **DSA** | **18–22** timed problems; finish or advance **1** Striver topic cluster |
+| **HLD practice** | **5–6** spoken redesigns (mix ✅ harden ⚠️ + 1 resume angle) |
+| **HLD theory** | **2** deep sessions (4–8 `##` sections) + **daily 20m** re-read |
+| **LLD** | **5–6** designs; **≥3** fully coded in Go or JS/TS |
+| **Lang docs** | **2** focused passes (e.g. event loop + channels) |
+| **Mocks** | **1** coding + **1** HLD (Fri/Sat) |
+| **Behavioral** | **3–5** STAR stories polished |
 
 ---
 
-## Theory revision (1–2× / week)
+## Spaced revision (HLD + LLD lang docs)
 
-**Not daily.** One solid pass beats shallow daily scrolling.
+HLD here is **dense but abstract** — one read won’t stick. Use **short frequent** + **deep twice weekly**.
 
-### Session (60–90m)
+### Daily 20m (pick one lane)
 
-1. Pick **2–3** `##` sections (use each doc’s **Index**).  
-2. Read + write **5–10 lines** each: when to use, vs alternative, pitfall.  
-3. Next HLD practice day: **force** those concepts into the spoken design.
+| Lane | Source | How |
+|------|--------|-----|
+| **HLD** | [topic catalog](./topic-catalog.md) → open 1–2 `##` | Rephrase aloud: when / vs / pitfall (5 lines in notes) |
+| **Node** | [JavaScript/README](https://github.com/PSPenta/lld-practice/blob/master/JavaScript/README.md) | One subsection (event loop, promises, …) |
+| **Go** | [Go/README](https://github.com/PSPenta/lld-practice/blob/master/Go/README.md) | One subsection (GMP, select, context, …) |
+| **Backend** | [Backend/README](https://github.com/PSPenta/lld-practice/blob/master/Backend/README.md) | Idempotency / pagination / status codes |
 
-### First-pass order
+**Rule:** next design block must **use** yesterday’s 20m topic out loud.
 
-Follow [docs curriculum](./README.md) A→E over weeks 1–4, then **spaced repeat** weak topics (Kafka vs SQS, cache stampede, saga, etc.).
+### Deep theory (2×/week, 60–90m)
+
+1. Pick **3–5** `##` sections (same doc or linked pair, e.g. Kafka + circuit breaker).  
+2. Notes: definition · when · alternative · failure mode.  
+3. Tag note with diagram to force it into (Notification, BookMyShow, …).
+
+### First-pass HLD order (weeks 1–4)
+
+Follow [docs curriculum A→E](./README.md), then **spaced repeat** weak topics (cache stampede, **slow index + EXPLAIN**, idempotency key on retry, SLI/SLO/budget exhausted, K8s vs ECS, RAG breaks / eval, LLM off request path, saga, ZK→KRaft, …).
+
+### Weekend revision (1×)
+
+30–45m: skim [topic catalog](./topic-catalog.md); open anything you can’t explain in 30 seconds.
 
 ---
 
-## Language via DSA & LLD
+## DSA — Striver topic rotation
 
-| Practice | Language habit |
-|----------|----------------|
-| **DSA** | Week A mostly **Go**, week B mostly **JS** — or alternate problems |
-| **LLD** | Implement the same design once in your primary interview language; optional second pass in the other |
-| **Depth** | When a solution uses channels / goroutines / event-loop / async pools — **pause 5m** and explain it aloud |
+**Active playlists / topics:** Binary Search · DP · Tree · Graph · Greedy · Two Pointers · Sliding Window · Linked List.
 
-No separate 30m lang slot. If an interview is language-locked, bias that week’s DSA/LLD to **~80%** that language.
+### How to use a Striver video
 
-Optional light platform refresh (ECS, SQS, Postgres `EXPLAIN`) folds into a **theory Saturday** or resume story prep — not a daily block.
+1. Watch pattern **once** (or until you can state the template).  
+2. **Close video** → solve 2–3 LC in Go/JS timed.  
+3. Only then compare approach; log mistake type (pattern miss / bug / lang).
+
+### Suggested multi-week rotation (repeat cycles)
+
+| Week focus (primary) | Secondary mix (keep warm) |
+|----------------------|---------------------------|
+| **W1** Binary Search | Two Pointers / Sliding Window |
+| **W2** Two Pointers + Sliding Window | Linked List |
+| **W3** Linked List + Tree intro | Binary Search |
+| **W4** Tree | DP easy patterns |
+| **W5** DP | Tree |
+| **W6** Graph | DP |
+| **W7** Graph + Greedy | Mixed |
+| **W8+** Weakest topic + Hard mix | All — 1 contest/week |
+
+Every week: **≥30%** problems from **previous** topics (spaced DSA), not only the new playlist.
+
+**Language:** alternate Go / JS by day or by week; interview-locked week → ~80% that language.
 
 ---
 
-## 8–10 week phases
+## LLD — language docs then problems
+
+From [lld-practice](https://github.com/PSPenta/lld-practice) recommended order (adapted to full-time):
+
+| Phase | Days (once) | Then |
+|-------|-------------|------|
+| **JS/Node cheat depth** | First **2–3** days heavy, then **weekly re-read** | Event loop, async, modules |
+| **Go cheat depth** | Next **2–3** days heavy (or parallel if already strong), then **weekly re-read** | Goroutines, channels, context |
+| **Backend/REST** | **1–2** days + before payment LLDs | Idempotency, auth, pagination |
+| **Method §4–5** | Ongoing | Six-step approach every LLD |
+| **problems/** | Daily LLD block | Parking, Rate limiter, Splitwise, Pub-Sub, … — **code** in Go or JS |
+
+**Machine-coding rule:** 10–25m design only → code happy path → edge cases → say concurrency/idempotency aloud.
+
+**Pattern anchors (point to repo in interview):** Strategy → RateLimiter · Factory → Parking/Splitwise · Observer → Pub-Sub · DIP → PaymentGateway-go.
+
+---
+
+## HLD — theory + spoken redesign
+
+| Activity | Cadence |
+|----------|---------|
+| Spoken redesign 45–50m | **5–6×/week** |
+| Diff vs diagram | After each redesign |
+| Staff extras every time | SLO, blast radius, failure, cost, MVP cut — [Staff bar](./README.md#staff-sde3-bar-self-check) |
+| Priority boards | Harden **⚠️** → finish **Experience** (MediBuddy, …) → selective Classic ❌ (Rate limiter, Uber, …) |
+
+**50-min board rule:** draw ~40% of the full diagram; depth in speech; flag deep-dives (outbox, etc.) in one sentence.
+
+---
+
+## 12-week phases
 
 | Weeks | Priority |
 |-------|----------|
-| **1–3** | DSA past Blind 75; HLD: redesign ✅ diagrams + **theory 1–2×/week**; LLD top patterns in Go/JS |
-| **4–6** | DSA Medium→Hard; HLD stretch; LLD under timer; weekly mocks; continue theory spaced repeat |
-| **7–10** | Interview mode: ~60% DSA + mocks, ~25% HLD, ~15% LLD/behavioral/theory refresh |
+| **0–1** | Lang docs bootstrap (JS + Go + Backend skim); HLD curriculum A–B start; DSA Binary Search + TP/SW warm; 1 easy LLD coded |
+| **2–4** | HLD A→E first pass + daily re-read; DSA BS → LL → Tree; LLD 4–5 coded patterns; start weekly mocks |
+| **5–7** | HLD harden ⚠️ + resume HLDs; DSA DP + Graph; LLD under timer; Staff vocabulary forced into every HLD |
+| **8–10** | Interview mode: mocks ↑; DSA Graph/Greedy + weak topics; HLD spaced theory; LLD only gaps + payment/parking polish |
+| **11–12** | Peak: 60% DSA+mocks · 25% HLD · 15% LLD/behavioral/lang refresh; company-specific (Razorpay → ledger/idempotency/PCI) |
+
+Compress to **8 weeks** by merging 8–10 into 6–8 if interviews are imminent — cut new LLD variety first, keep mocks + HLD speech + DSA.
+
+---
+
+## Staff / SDE3 bar (weekly self-check)
+
+Each week, without notes, can you:
+
+- [ ] Drive FR/NFR → estimate → API → diagram → deep dive in 45m  
+- [ ] Name bottleneck resource (RPS vs CPU vs IO vs connections)  
+- [ ] Consistency **per path**; idempotent writes; at-least-once consumers  
+- [ ] SLO + error budget + what you shed  
+- [ ] One region down + poison message  
+- [ ] Payments: idempotency, ledger, PCI scope, reconciliation  
+- [ ] LLD: SOLID with composition; concurrency + failure on the hot path  
+- [ ] DSA: explain yesterday’s Hard pattern in 2 minutes  
 
 ---
 
 ## Win condition
 
-Weekly **mocks** + **spoken HLD** + **coded LLD** (in Go/JS) + **1–2 theory sessions** with notes you can recite.
+**Not** “finished every doc once.”
 
-Not: finishing every doc once with zero redesign, or a separate language course on the side.
+**Yes:** weekly **mocks** + **spoken HLD with Staff extras** + **coded LLD in Go/JS** + **daily 20m re-read** + **2 deep theory sessions** + Striver topics advancing with **spaced old DSA**.
+
+If energy drops: keep **DSA morning + one design + 20m re-read**; drop the 19:00 block.

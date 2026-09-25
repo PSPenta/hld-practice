@@ -24,9 +24,11 @@ Staff-level designs talk about **what “good” means**, how you fail, and how 
 
 | Term | Meaning | Example |
 |------|---------|---------|
-| **SLI** | Metric you measure | Successful charges / total charge attempts |
-| **SLO** | Internal target on an SLI | 99.95% success over 30 days |
+| **SLI** | **Metric you measure** (not “availability” as a vague word) | Successful charges / total charge attempts; or p99 latency |
+| **SLO** | Internal **target** on an SLI | 99.95% success over 30 days; p99 &lt; 300ms |
 | **SLA** | Customer/contract promise | Often looser than SLO (credits if breached) |
+
+Availability is **one kind of SLI** (successful / total), not the definition of SLI.
 
 **RED (requests):** Rate, Errors, Duration (latency)  
 **USE (resources):** Utilization, Saturation, Errors  
@@ -37,10 +39,22 @@ In an interview, propose 1–2 SLOs early (“payment authorize p99 &lt; 300ms�
 
 ## Error budgets
 
-If SLO is 99.9% monthly ≈ 43 minutes downtime budget.
+If SLO is 99.9% monthly ≈ 43 minutes downtime / error budget.
 
-- Budget healthy → ship features, canaries OK  
-- Budget burned → freeze risky deploys, fix reliability  
+| Budget state | What you do |
+|--------------|-------------|
+| **Healthy** | Ship features; canaries and experiments OK |
+| **Burning fast** | Pause risky changes; page on-call; find top error/latency cause |
+| **Exhausted** | **Freeze** non-essential deploys / feature launches; prioritize reliability fixes; tighten canary; optionally **rollback** the change that burned budget |
+
+Error budget is **not** “a canary feature.” Canaries **consume** budget safely so you detect burn early.
+
+**Concrete example (payments)**
+
+- **SLI:** `successful_authorizations / authorization_attempts` (exclude client 4xx if product says so)  
+- **SLO:** 99.9% over 30 days  
+- **Budget:** 0.1% failures ≈ allowed error count for the month  
+- Exhausted → no new risky release until burn rate recovers  
 
 Staff signal: connect **canary / feature flags** to error budget, not vibes.
 

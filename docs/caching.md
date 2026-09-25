@@ -20,12 +20,16 @@ Caching is easy to draw and easy to get wrong. Interviewers probe **failures and
 
 ## Quick recap of patterns
 
-| Pattern | Idea |
-|---------|------|
-| Cache-aside | App reads/writes cache explicitly (most common) |
-| Read-through | Cache loads DB on miss |
-| Write-through | Write cache + DB together |
-| Write-behind | Async DB write (fast, durability risk) |
+| Pattern | Idea | When |
+|---------|------|------|
+| **Cache-aside** | App reads cache → miss → DB → fill cache; app invalidates/updates on write | **Default.** Reads dominate; brief stale OK; you control fill/invalidation |
+| **Read-through** | Cache library loads DB on miss | Same as aside, but fill logic lives in cache layer |
+| **Write-through** | Every write updates **cache + DB** together | Stronger freshness on read-after-write; **higher write latency**; still need failure handling if one succeeds and one fails |
+| **Write-behind** | Write cache first; async flush to DB | Rare — speed over durability; risk data loss on crash |
+
+**Do not pick write-through because “many users read the same key.”** Shared hot reads → cache-aside (or read-through) + stampede protection. Write-through is about **write-path consistency**, not read fan-out.
+
+**Interview line:** “Cache-aside for most APIs. Write-through only if product needs read-your-writes from cache and we accept slower writes.”
 
 ---
 
@@ -35,11 +39,13 @@ Caching is easy to draw and easy to get wrong. Interviewers probe **failures and
 
 **Mitigations**
 
-- **Singleflight / request coalescing** — one filler, others wait
+- **Singleflight / request coalescing** — one filler, others wait (best in-process)
 - **Probabilistic early expiration** — refresh before TTL hits zero
-- **Lock around miss** (short Redis lock) — only lock holder loads DB
+- **Short lock on miss** — Redis `SET key NX EX` (or Redlock only if multi-region lock truly needed — usually overkill)
 - **Soft TTL** — serve stale while one request refreshes
 - Never set identical TTL on millions of keys created together (jitter TTLs)
+
+**Not a stampede fix:** “switch to write-through.”
 
 ---
 

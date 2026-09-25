@@ -11,6 +11,8 @@ How you split the app: monolith vs microservices, request-path **services** vs a
 - [Monolith vs microservices](#monolith-vs-microservices)
 - [Services vs workers](#services-vs-workers)
 - [Where to use services vs workers](#where-to-use-services-vs-workers)
+- [API contracts other teams depend on](#api-contracts-other-teams-depend-on)
+  - [Evolving without breaking them](#evolving-without-breaking-them)
 - [Beyond services & workers](#beyond-services-workers)
 - [Cron / scheduler vs Temporal](#cron-scheduler-vs-temporal)
 - [DB topology & connections](#db-topology-connections)
@@ -62,6 +64,29 @@ Client → API Service → DB
 | Orchestrate “accept” then async | Poison-prone / flaky 3rd parties |
 
 **Pattern:** service does **fast, correct accept** (validate + persist + enqueue) → worker does **slow / unreliable** work. Payments: authorize/idempotent write in service path; notify merchant / reconcile in workers.
+
+---
+
+## API contracts other teams depend on
+
+**Decide first (platform / shared API)**
+
+1. **Resource model + operations** (what exists; not every field yet)  
+2. **Request/response shape** — required vs optional; types; error model  
+3. **Authn/z**, idempotency for creates/money, pagination, rate limits  
+4. **SLOs** consumers will depend on (latency / availability)
+
+Fields matter, but **compatibility and failure behavior** matter more for other teams.
+
+### Evolving without breaking them
+
+| Change | How |
+|--------|-----|
+| **Additive** (new optional field, new endpoint) | Ship in same version; old clients ignore unknown fields |
+| **Semantic break** (rename/remove/required change, meaning change) | **New version** (`/v2` or version header); keep `/v1` until sunset date |
+| **Soft deprecate** | Document; dual-write/read if needed; monitor old-version traffic |
+
+**Interview line:** “Contract + compatibility rules first. Breaking changes go to a new version; additive changes don’t force upgrades.”
 
 ---
 

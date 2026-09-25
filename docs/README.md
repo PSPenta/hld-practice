@@ -6,7 +6,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 
 - [How to use this](#how-to-use-this)
 - [Curriculum (grouped)](#curriculum-grouped)
-- [Topic catalog (sneak peek)](./topic-catalog.md)
+- [Topic catalog (central index)](./topic-catalog.md)
 - [Format convention (all docs)](#format-convention-all-docs)
 - [Staff / SDE3 bar (self-check)](#staff-sde3-bar-self-check)
 
@@ -23,7 +23,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 
 ## Curriculum (grouped)
 
-**Sneak peek of every nested topic:** [Topic catalog](./topic-catalog.md) (points → sub-points with deep links).
+**Central topic picker:** [Topic catalog](./topic-catalog.md) — every concept with a deep link to its detailed section.
 
 ### A. Interview craft
 
@@ -32,7 +32,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 | [Soft skills](./soft-skills.md) | Narrative, trade-offs, Staff-level leadership signals |
 | [Staff vocabulary](./staff-vocabulary.md) | Upstream/downstream, capacity, overload, isolation terms |
 | [Estimation fluency](./estimation-fluency.md) | Justify every box with order-of-magnitude math |
-| [Prep plan (daily / weekly)](./prep-plan.md) | DSA + LLD + HLD schedule (11:00–21:00) |
+| [Prep plan (daily / weekly)](./prep-plan.md) | DSA + LLD + HLD — **full-time Staff/SDE3** schedule |
 | Root [README — standard approach](../README.md#standard-approach-checklist) | Round structure |
 
 ### B. Foundation (draw the boxes)
@@ -40,7 +40,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 | Doc | Why |
 |-----|-----|
 | [Building blocks](./building-blocks.md) | DNS, CDN, LB, **forward/reverse proxy**, VPN vs proxy, gateway, cache, DB, queue, search, realtime |
-| [Service architecture](./service-architecture.md) | Monolith vs microservices, **services vs workers**, DB connections |
+| [Service architecture](./service-architecture.md) | Monolith vs microservices, **services vs workers**, **API contracts / versioning**, DB connections |
 | [Core concepts](./core-concepts.md) | CAP, consistency, idempotency, fan-out, CRDT pointer |
 | [Scaling](./scaling.md) | Bottleneck type (RPS/CPU/mem), partition vs shard |
 | [Networking & media](./networking-and-media.md) | TCP/UDP, HLS/DASH, RTMP/SRT, WebRTC |
@@ -50,9 +50,10 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 | Doc | Why |
 |-----|-----|
 | [Data stores](./data-stores.md) | ACID/BASE, SQL/NoSQL, OLAP, TiDB/TSDB, LSM, Vector DB, **DB deploy (region / read vs write)** |
-| [Caching](./caching.md) | Stampede, avalanche, penetration, invalidation, eviction |
+| [AI systems](./ai-systems.md) | **RAG prod failures**, retrieval vs gen **eval**, **LLM off request path** |
+| [Caching](./caching.md) | Stampede, avalanche, penetration, invalidation, eviction, **cache-aside vs write-through** |
 | [Messaging & pipelines](./messaging-and-pipelines.md) | Queue vs pub/sub, Kafka/Rabbit/SQS, **ZK→KRaft**, **Kinesis**, **Lambda vs Kappa**, WAL, CDC, Spark/Flink |
-| [Algorithms & indexes](./algorithms-and-indexes.md) | Bloom, geo, **proximity / keyword (ES) / semantic**, hash vs encrypt |
+| [Algorithms & indexes](./algorithms-and-indexes.md) | Bloom, geo, **proximity / keyword (ES) / semantic**, **why index still slow + EXPLAIN**, hash vs encrypt |
 
 ### D. Reliability & correctness (Staff differentiator)
 
@@ -66,7 +67,8 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 
 | Doc | Why |
 |-----|-----|
-| [Deployment & ops](./deployment-and-ops.md) | Docker, K8s, canary/blue-green, **Prometheus/Grafana vs ELK** |
+| [Deployment & ops](./deployment-and-ops.md) | Docker, **K8s objects**, **K8s vs ECS**, canary/blue-green, **Prometheus/Grafana vs ELK** |
+| [Prometheus & Grafana setup](./prometheus-grafana-setup.md) | **Detailed:** `/metrics` export, scrape config, Compose vs K8s, Grafana datasource, Alertmanager |
 
 ---
 
@@ -94,9 +96,11 @@ You are ready for a strong round when you can, without notes:
 - [ ] Name the **bottleneck resource** (RPS vs CPU vs IO vs connections) — [Staff vocabulary](./staff-vocabulary.md)  
 - [ ] Pick consistency **per data path**, not globally  
 - [ ] Design **idempotent** writes and at-least-once consumers  
-- [ ] State **SLO + error budget** and what you shed under overload  
+- [ ] State **SLO + error budget** and what you do when budget is **exhausted**  
 - [ ] Describe **one region down** and **poison message** behavior  
 - [ ] For payments: **idempotency, ledger, PCI scope, reconciliation**  
+- [ ] RAG: name **what breaks first** and how you **eval retrieval vs generation**  
+- [ ] Say when **LLM leaves the request path** (async / precompute)  
 - [ ] Defend MVP vs v2 and **cost** of the expensive component  
 
 Diagrams in this repo are practice keys — not cheat sheets to memorize box-for-box.

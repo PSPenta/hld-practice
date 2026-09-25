@@ -15,6 +15,8 @@ Probabilistic structures, geo indexes, **proximity / keyword / semantic search**
 - [Keyword search & inverted indexes (Elasticsearch)](#keyword-search-inverted-indexes-elasticsearch)
 - [Semantic search](#semantic-search)
 - [Choosing proximity vs keyword vs semantic](#choosing-proximity-vs-keyword-vs-semantic)
+- [Why a query with an index can still be slow](#why-a-query-with-an-index-can-still-be-slow)
+  - [How to prove which reason it is](#how-to-prove-which-reason-it-is)
 - [Other index / structure prerequisites](#other-index-structure-prerequisites)
 
 ---
@@ -308,6 +310,37 @@ Query → (optional sparse BM25) + (dense ANN) → fuse scores / RRF → filters
 | Paraphrase, RAG, “similar meaning” | **Semantic / vector** |
 | “Italian near me” | Geo **filter** + keyword/semantic **rank** |
 | Resume AI / SuperStocks-style RAG | KB + chunk + vector (+ optional BM25) |
+
+---
+
+## Why a query with an index can still be slow
+
+Having an index ≠ the planner uses it well (or at all).
+
+| Reason | What happens |
+|--------|----------------|
+| **Wrong / unused index** | Predicate doesn’t match (function on column, leading-wildcard `LIKE '%x'`, type mismatch) → **Seq Scan** |
+| **Bad composite order** | Index `(a, b)` won’t help `WHERE b = ?` alone (leftmost prefix rule) |
+| **Low selectivity** | Predicate matches huge % of rows → random heap lookups cost more than a seq scan |
+| **Non-covering index** | Index find row IDs → many **heap/key lookups** for selected columns |
+| **Work after the index** | Huge sort, hash join, aggregation, OR across unindexed cols |
+| **Stale stats / bloat** | Planner mis-estimates rows; index/table needs `ANALYZE` / vacuum |
+| **Contention / IO** | Locks, cold cache, disk saturation — plan looks fine, wall time bad |
+
+**Composite index cheat:** put **equality** columns first, then **range**, match `ORDER BY` when possible. High-cardinality columns usually before low-cardinality flags.
+
+### How to prove which reason it is
+
+1. Run **`EXPLAIN (ANALYZE, BUFFERS)`** (Postgres) / equivalent plan in MySQL.  
+2. Check: **Seq Scan vs Index Scan / Index Only Scan?**  
+3. Compare **estimated rows vs actual** — big mismatch → stats / selectivity.  
+4. Look for **Heap Fetches / Key Lookup** — non-covering.  
+5. Confirm index definition matches `WHERE` / `JOIN` / `ORDER BY` column **order**.  
+6. If plan is fine but slow → check locks (`pg_stat_activity`), IO, connection pool, app N+1.
+
+**Interview line:** “I’d not argue index design from intuition — `EXPLAIN ANALYZE` shows whether we skip the index, thrash on lookups, or mis-estimate rows.”
+
+RAG / AI retrieval failure modes: [AI systems](./ai-systems.md).
 
 ---
 

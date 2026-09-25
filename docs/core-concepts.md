@@ -13,6 +13,7 @@ Ideas interviewers expect you to **apply** when comparing designs. Prefer concre
 - [ACID vs BASE](#acid-vs-base)
 - [CRDT (Conflict-free Replicated Data Type)](#crdt-conflict-free-replicated-data-type)
 - [Idempotency](#idempotency)
+  - [Where to enforce (request path)](#where-to-enforce-request-path)
 - [Optimistic locking & versioning](#optimistic-locking-versioning)
 - [Latency vs throughput](#latency-vs-throughput)
 - [Latency & metrics vocabulary](#latency-metrics-vocabulary)
@@ -94,6 +95,21 @@ Patterns:
 - **Idempotency key** (client-generated UUID) stored with result
 - Natural keys (`orderId + seatId`)
 - Conditional writes (`UPDATE … WHERE status = 'pending'`)
+
+### Where to enforce (request path)
+
+| Layer | What you do |
+|-------|-------------|
+| **Client / caller** | Generate key once per logical intent; **reuse the same key on every retry** of that POST |
+| **API gateway / service** | Require `Idempotency-Key` (or body field) on money / create APIs; lookup key → if seen, return **stored response** (don’t re-charge) |
+| **DB** | Unique constraint on idempotency key / natural key so races can’t double-apply |
+| **Queue consumer** | Dedupe on `eventId` / payment id **before** side effects — see [Inbox](./messaging-and-pipelines.md#inbox-dedupe-table) |
+
+**Retried POST key:** same `Idempotency-Key` header (or client token) as the first attempt — **not** a new UUID each retry. New key = new logical payment.
+
+**Wrong interview answer:** “Use exactly-once delivery.” Brokers are usually **at-least-once**; you make the **effect** exactly-once via idempotency.
+
+**Interview line:** “Client owns the key for the logical operation; server persists key→outcome; retries are safe reads of that outcome.”
 
 ## Optimistic locking & versioning
 

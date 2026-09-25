@@ -14,6 +14,7 @@ Choosing where data lives: transactional DBs, analytics, time series, and AI ret
 - [TiDB (distributed SQL) vs TSDB (time-series DB)](#tidb-distributed-sql-vs-tsdb-time-series-db)
 - [Downsampling](#downsampling)
 - [Knowledge base vs Vector DB](#knowledge-base-vs-vector-db)
+- [AI systems (RAG / LLM)](./ai-systems.md) — prod failures, eval, off request path
 - [LSM trees (storage engine)](#lsm-trees-storage-engine)
 - [DB deployment strategies](#db-deployment-strategies)
 - [Quick chooser](#quick-chooser)
@@ -135,6 +136,8 @@ User query → embed → ANN top-k → (optional rerank / keyword filter) → LL
 
 Often **hybrid**: keyword (BM25/ES) + vector, with ACL filters from the KB.  
 Vector DB is not a replacement for the KB — it’s a **retrieval index** over content that still lives somewhere authoritative.
+
+**Prod failures, retrieval eval, LLM off the request path:** [AI systems](./ai-systems.md).
 
 Full search comparison (keyword inverted index vs semantic vs proximity): [Algorithms & indexes](./algorithms-and-indexes.md#choosing-proximity-vs-keyword-vs-semantic).
 

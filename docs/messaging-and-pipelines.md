@@ -16,7 +16,12 @@ How systems move data asynchronously: queues, streams, logs, and processors.
 - [Write-ahead log (WAL) & MySQL binlog](#write-ahead-log-wal-mysql-binlog)
 - [CDC (Change Data Capture)](#cdc-change-data-capture)
 - [Event aggregator (Spark) vs Stream aggregator (Flink)](#event-aggregator-spark-vs-stream-aggregator-flink)
-- [Related patterns (also prerequisites)](#related-patterns-also-prerequisites)
+  - [Related patterns (also prerequisites)](#related-patterns-also-prerequisites)
+    - [Transactional outbox](#transactional-outbox)
+    - [Inbox / dedupe table](#inbox-dedupe-table)
+    - [Event sourcing (light)](#event-sourcing-light)
+    - [CQRS (light)](#cqrs-light)
+    - [Log compaction (Kafka)](#log-compaction-kafka)
 
 ---
 
@@ -258,7 +263,16 @@ Also hear: **Spark Structured Streaming** (micro-batch) vs **Flink** (continuous
 Write business row + “event to publish” in the **same DB transaction**; a relay publishes to Kafka/SQS. Avoids dual-write loss.
 
 ### Inbox / dedupe table
-Consumer stores `eventId` before side effects → idempotent under at-least-once delivery.
+Consumer stores `eventId` (or payment id) **before** side effects → idempotent under at-least-once delivery.
+
+**Payment event consumer (interview answer)**
+
+1. Delivery is **at-least-once** — duplicates happen.  
+2. Begin tx / upsert: `INSERT INTO processed_events(event_id) …` with **unique** `event_id`.  
+3. If duplicate key → **no-op** (or return prior result); do **not** charge/refund again.  
+4. Else apply ledger / status transition; commit.  
+
+That is **idempotent processing**, not “turn on exactly-once.” Keys on retried HTTP POSTs: [Idempotency](./core-concepts.md#idempotency).
 
 ### Event sourcing (light)
 Store state as a sequence of events; rebuild via replay. Powerful but heavy — mention only when audit/replay is core.
