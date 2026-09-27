@@ -139,6 +139,7 @@
   - [Availability & failure modes](./core-concepts.md#availability-failure-modes)
   - [Partitioning & hot keys](./core-concepts.md#partitioning-hot-keys)
   - [Rate limiting](./core-concepts.md#rate-limiting)
+    - [Multi-tier / enterprise bandwidth (interview variant)](./core-concepts.md#multi-tier--enterprise-bandwidth-interview-variant)
   - [Backpressure](./core-concepts.md#backpressure)
   - [Exponential backoff](./core-concepts.md#exponential-backoff)
   - [Circuit breaker](./core-concepts.md#circuit-breaker)
@@ -342,6 +343,7 @@
 | SLI / SLO / error budget | [SLI, SLO, SLA](./reliability-and-slos.md#sli-slo-sla) · [Error budgets](./reliability-and-slos.md#error-budgets) |
 | K8s vs ECS | [Kubernetes vs Amazon ECS](./deployment-and-ops.md#kubernetes-vs-amazon-ecs) |
 | Readiness probe | [Probes](./deployment-and-ops.md#probes-resources--staff-gotchas) |
+| Rate limiter 3 tiers / enterprise pool | [Multi-tier rate limiting](./core-concepts.md#multi-tier--enterprise-bandwidth-interview-variant) · [Notification diagram](../diagrams/notification-system/) |
 | RAG / LLM off path | [AI systems](./ai-systems.md) |
 
 ---

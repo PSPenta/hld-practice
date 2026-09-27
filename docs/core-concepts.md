@@ -20,6 +20,7 @@ Ideas interviewers expect you to **apply** when comparing designs. Prefer concre
 - [Availability & failure modes](#availability-failure-modes)
 - [Partitioning & hot keys](#partitioning-hot-keys)
 - [Rate limiting](#rate-limiting)
+  - [Multi-tier / enterprise bandwidth (interview variant)](#multi-tier--enterprise-bandwidth-interview-variant)
 - [Backpressure](#backpressure)
 - [Exponential backoff](#exponential-backoff)
 - [Circuit breaker](#circuit-breaker)
@@ -89,6 +90,7 @@ Critical for:
 - At-least-once queues
 - Client retries / flaky networks
 - Payment and booking APIs
+- **Notification send** — client must send `idempotencyKey` on `POST`; same key on retry after timeout (see [Notification System](../diagrams/notification-system/))
 
 Patterns:
 
@@ -218,6 +220,17 @@ Algorithms (know one well):
 - **Fixed / sliding window** — simple counters (Redis)
 
 Place at gateway and/or per-tenant / per-IP / per-API key. Return `429` with clear retry guidance.
+
+### Multi-tier / enterprise bandwidth (interview variant)
+
+| Tier | Policy |
+|------|--------|
+| **Free / Pro** | Fixed RPS (+ optional burst) per API key |
+| **Enterprise** | **Reserved** capacity that noisy Free/Pro cannot steal + optional **shared pool** (fair/weighted borrow when reserved unused) |
+
+Implement as: per-key token bucket **and** (for enterprise) a second pool bucket or weighted fair queue. Don’t only say “higher limit number.”
+
+Notification HLD practice: [Notification System](../diagrams/notification-system/) (client `idempotencyKey` on send + 3-tier limiter).
 
 ## Backpressure
 
