@@ -9,6 +9,7 @@ How you ship and run systems: containers, orchestration, release strategies, and
 ## Index
 
 - [Docker](#docker)
+  - [Immutable images: tags vs digests](#immutable-images-tags-vs-digests)
 - [Kubernetes (K8s)](#kubernetes-k8s)
   - [Cluster, Node, Pod](#cluster-node-pod)
   - [Kubelet & Kube-proxy](#kubelet--kube-proxy)
@@ -42,6 +43,23 @@ Packages app + dependencies into an **image**; runs as a **container**.
 - Resource limits (CPU/memory) per container
 
 **Interview depth:** images, registries, env config, healthchecks — not Dockerfile golf.
+
+### Immutable images: tags vs digests
+
+**Interview snapshot**
+- **What:** Deploy by **digest** (`repo@sha256:…`) so the bits can’t change under you; tags (`:latest`, `:v1.2`) are movable pointers.
+- **Why:** `:latest` today ≠ `:latest` tomorrow → unreproducible rollbacks and “works in staging” ghosts.
+- **Trade-off:** Digests are verbose; tags are human-friendly for CI — pin digests (or immutable tags) in prod.
+- **Example:** Prod Deployment image = `payments@sha256:abc…`; CI may build `:1.4.2` then resolve and store the digest.
+
+| Reference | Mutable? | Use |
+|-----------|----------|-----|
+| **Tag** (`:v1.2.3`, `:latest`) | Yes (retag) | Dev convenience; avoid `:latest` in prod |
+| **Digest** (`@sha256:…`) | No (content-addressed) | Prod deploys, audit, rollbacks |
+
+**Immutable release habit:** build once → push → promote **same digest** through staging → prod. Never rebuild “the same tag” for prod.
+
+**Interview line:** “Tags move; digests don’t. Prod pins digest (or an immutable tag that never retargets).”
 
 ---
 
@@ -255,6 +273,12 @@ Automatically sets Deployment/ReplicaSet/StatefulSet **replica count** from metr
 
 ### Probes, resources & Staff gotchas
 
+**Interview snapshot (readiness)**
+- **What:** Ready for **traffic** (endpoints); not the same as liveness (restart if dead).
+- **Why:** Warming pods shouldn’t get requests; deadlocked pods should restart.
+- **Trade-off:** Strict readiness can flap under dependency blips; loose readiness serves errors.
+- **Example:** Fail readiness until DB + cache warm; live but not ready → no Service traffic.
+
 | Probe | Purpose |
 |-------|---------|
 | **Liveness** | Restart container if deadlocked / wedged (**process health**) |
@@ -270,6 +294,12 @@ Automatically sets Deployment/ReplicaSet/StatefulSet **replica count** from metr
 
 ### Requests vs limits (sizing)
 
+**Interview snapshot**
+- **What:** `requests` = scheduler guarantee; `limits` = hard cap (mem → OOM, CPU → throttle).
+- **Why:** Wrong values → noisy neighbor, bad HPA, or surprise kills.
+- **Trade-off:** High requests waste cluster capacity; tiny requests overcommit and fight neighbors.
+- **Example:** Set memory request ≈ steady use; limit with headroom for GC spikes.
+
 | Field | Set it to | Why |
 |-------|-----------|-----|
 | **requests.cpu / memory** | ≈ **steady-state** need (p50–p75 under normal peak) | Scheduler packs honestly; HPA % is vs requests |
@@ -281,6 +311,12 @@ Automatically sets Deployment/ReplicaSet/StatefulSet **replica count** from metr
 **PodDisruptionBudget (PDB):** limit voluntary disruptions (drains, upgrades) so you keep `minAvailable` healthy Pods — Staff signal for HA APIs.
 
 ### Pod OOMKilled every few hours
+
+**Interview snapshot**
+- **What:** Container exceeds memory limit → kernel/cgroup kills it (often exit 137).
+- **Why:** Recurring OOM = leak or unbounded buffer, not “random K8s.”
+- **Trade-off:** Raising limit stops the bleed short-term; without a fix the node still dies later.
+- **Example:** In-memory map grows per request overnight → OOM every few hours.
 
 1. **Confirm** — `OOMKilled` in `kubectl describe` / events; container exit 137.  
 2. **Graph memory** — climb then kill? Leak vs periodic batch spike.  
@@ -313,6 +349,12 @@ Automatically sets Deployment/ReplicaSet/StatefulSet **replica count** from metr
 ---
 
 ## Kubernetes vs Amazon ECS
+
+**Interview snapshot**
+- **What:** Both schedule containers on a fleet; K8s is portable/richer; ECS is AWS-simpler.
+- **Why:** Interviewers catch “K8s = pods on one VM, ECS = whole machines” myths.
+- **Trade-off:** K8s flexibility costs control-plane/ops complexity.
+- **Example:** AWS-only team → ECS+Fargate; multi-cloud/custom controllers → K8s.
 
 Both **schedule containers across a cluster** (tasks/Pods on nodes/instances). K8s is **not** “pods inside one VM while ECS manages whole machines.”
 

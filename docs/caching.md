@@ -15,12 +15,19 @@ Caching is easy to draw and easy to get wrong. Interviewers probe **failures and
 - [Cache invalidation](#cache-invalidation)
 - [Eviction policies](#eviction-policies)
 - [Eviction vs invalidation](#eviction-vs-invalidation)
+- [What must never be cached](#what-must-never-be-cached)
 - [Hit rate crashed overnight (first 10 minutes)](#hit-rate-crashed-overnight-first-10-minutes)
 - [Other cache topics worth knowing](#other-cache-topics-worth-knowing)
 
 ---
 
 ## Quick recap of patterns
+
+**Interview snapshot**
+- **What:** Aside = app fills on miss; write-through = every write updates cache + DB together.
+- **Why:** Wrong pattern either wastes write latency or serves stale reads.
+- **Trade-off:** Aside is simpler/faster writes but brief stale; write-through fresher reads, slower writes.
+- **Example:** Product catalog reads → cache-aside; rarely “many readers ⇒ write-through.”
 
 | Pattern | Idea | When |
 |---------|------|------|
@@ -36,6 +43,12 @@ Caching is easy to draw and easy to get wrong. Interviewers probe **failures and
 ---
 
 ## Cache stampede (a.k.a. dogpile / thundering herd)
+
+**Interview snapshot**
+- **What:** Hot key expires → many concurrent misses → all hit DB.
+- **Why:** One popular key can melt the database.
+- **Trade-off:** Singleflight/lock adds complexity; soft TTL may serve briefly stale data.
+- **Example:** Homepage config key TTL hits zero during peak → thundering herd.
 
 **What:** Hot key expires → many concurrent requests miss → all hit DB → overload.
 
@@ -118,6 +131,12 @@ Often combine: **TTL for freshness** + **LRU for memory pressure**. See eviction
 
 ## Eviction vs invalidation
 
+**Interview snapshot**
+- **What:** Invalidation = you drop a key because data changed; eviction = cache frees memory/TTL.
+- **Why:** Mixing them up misdiagnoses incidents (bug vs capacity).
+- **Trade-off:** Aggressive invalidation = fresher data, more DB load; lazy TTL = cheaper, more stale.
+- **Example:** Profile update → `DEL user:42` (invalidation); Redis LRU drops cold keys under `maxmemory` (eviction).
+
 | | **Invalidation** | **Eviction** |
 |--|------------------|--------------|
 | **Trigger** | **Your write** (or explicit purge) — data changed / must not be served | **Memory / TTL pressure** — redis needs space or key expired |
@@ -128,7 +147,35 @@ Often combine: **TTL for freshness** + **LRU for memory pressure**. See eviction
 
 ---
 
+## What must never be cached
+
+**Interview snapshot**
+- **What:** Data that is wrong or dangerous if served stale — even for milliseconds.
+- **Why:** Cache hits can skip authz checks, double-spend money, or sell held inventory.
+- **Trade-off:** Always hitting DB/source of truth costs latency; worth it on money/security paths.
+- **Example:** Don’t cache “seat hold for user X” across pods with a long TTL — hold must live in the booking store with expiry.
+
+| Don’t cache (or only with extreme care) | Why |
+|-----------------------------------------|-----|
+| **Authn / Authz decisions** (session validity, permissions, API keys) | Stale “allowed” after revoke → security hole |
+| **Money / ledger balances**, payment auth outcomes | Stale balance → overdraft / double charge |
+| **Inventory holds / seats / coupons** while reserved | Stale “available” → oversell |
+| **One-time tokens** (OTP, magic link, nonce) | Replay after consume |
+| **PII that policy forbids** in Redis/CDN | Compliance / breach blast radius |
+
+**OK to cache with short TTL + invalidation:** public catalog, profile display fields, feature flags (with careful revoke path).
+
+**Interview line:** “If staleness can lose money or grant access, it isn’t a cache problem — it’s source-of-truth + short-lived locks/holds.”
+
+---
+
 ## Hit rate crashed overnight (first 10 minutes)
+
+**Interview snapshot**
+- **What:** Sudden drop in cache effectiveness overnight.
+- **Why:** Miss storm hits the DB; can take down the primary path.
+- **Trade-off:** Raise memory / fail-open to Redis quickly vs find root cause (eviction vs key change vs expiry).
+- **Example:** Overnight job sets identical TTLs → mass expiry at 3am → avalanche.
 
 **Prompt:** cache hit rate 95% → 60% overnight. What do you do in the first 10 minutes?
 

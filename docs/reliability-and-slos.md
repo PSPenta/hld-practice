@@ -24,6 +24,12 @@ Staff-level designs talk about **what “good” means**, how you fail, and how 
 
 ## SLI, SLO, SLA
 
+**Interview snapshot**
+- **What:** SLI = measured signal; SLO = target; SLA = customer/contract promise.
+- **Why:** Decides how you talk about reliability before picking tech.
+- **Trade-off:** Tight SLO = happier users, less feature velocity when budget burns.
+- **Example:** SLI = auth success rate; SLO = 99.9% over 30 days; SLA often looser with credits.
+
 | Term | Meaning | Example |
 |------|---------|---------|
 | **SLI** | **Metric you measure** (not “availability” as a vague word) | Successful charges / total charge attempts; or p99 latency |
@@ -40,6 +46,12 @@ In an interview, propose 1–2 SLOs early (“payment authorize p99 &lt; 300ms�
 ---
 
 ## Error budgets
+
+**Interview snapshot**
+- **What:** Error budget = `1 − SLO` (allowed failure before you freeze).
+- **Why:** Decides when to ship vs freeze for reliability.
+- **Trade-off:** Spending budget on features vs holding it for incidents.
+- **Example:** 99.9% auth success; budget exhausted → freeze risky deploys, fix burn.
 
 If SLO is 99.9% monthly ≈ 43 minutes downtime / error budget.
 
@@ -126,6 +138,12 @@ State **RPO** (data loss tolerance) and **RTO** (time to recover) when DR comes 
 
 ## Exponential backoff
 
+**Interview snapshot**
+- **What:** Random noise added to exponential backoff delay (**retry jitter** — not Kafka partitions, not Redis TTL jitter).
+- **Why:** Stops synchronized clients from retrying in lockstep (thundering herd on recovery).
+- **Trade-off:** Slightly less predictable wait; much safer under failure.
+- **Example:** `delay = min(30s, 100ms × 2^n) + random(0..delay)` on HTTP 503 retries.
+
 Retry transient failures with **increasing delay** so a sick dependency isn’t hammered by synchronized clients.
 
 ### Formula (typical)
@@ -168,6 +186,12 @@ Example: base 100ms → 100, 200, 400, 800… capped at e.g. 30s, with **full or
 
 ## Retries make outages worse
 
+**Interview snapshot**
+- **What:** Clients retry a sick dependency → load multiplies (retry amplification).
+- **Why:** Turns a blip into a cascade; fills pools; hurts healthy paths.
+- **Trade-off:** Fewer retries = faster fail for users; more retries = temporary resilience, bigger blast.
+- **Example:** PSP timeout → every pod retries 5× → PSP and your thread pools die together.
+
 **Why:** When a dependency is slow/down, every client retries → **load multiplies** (retry amplification). Thread/connection pools fill; healthy paths share the same process; cascading failure. Synchronized retries (no jitter) arrive as a thundering herd the moment the dependency flickers back.
 
 **What jitter is for:** randomize retry delay so clients don’t fire in lockstep after the same failure.
@@ -188,6 +212,12 @@ Detail: [Circuit breaker](./core-concepts.md#circuit-breaker).
 
 ## p99 up, errors flat (post-deploy)
 
+**Interview snapshot**
+- **What:** Latency doubles, success rate unchanged — path got slower, not crashing.
+- **Why:** Users feel pain without 5xx alarms firing.
+- **Trade-off:** Rollback fast vs dig (CPU/GC/N+1/dependency) — canary helps both.
+- **Example:** New code adds extra DB round-trip per request → p99↑, 2xx still OK.
+
 **Prompt:** After a deploy, **p99 latency doubled**, **error rate unchanged**. What do you look at?
 
 Errors flat ⇒ requests still succeed — something got **slower**, not crashing.
@@ -203,6 +233,12 @@ Errors flat ⇒ requests still succeed — something got **slower**, not crashin
 | **Canary vs baseline** | Compare new RS pods to old |
 
 ### What if it is only one pod?
+
+**Interview snapshot**
+- **What:** Fleet p99 bad because one instance is toxic.
+- **Why:** LB still sends it traffic until you remove it.
+- **Trade-off:** Kill/remove pod to stabilize vs keep it for dumps (heap/thread).
+- **Example:** One pod GC thrashing; fail readiness → p99 recovers.
 
 1. Confirm with per-pod metrics (CPU, mem, GC, in-flight).  
 2. **Cordon / remove from Service** (fail readiness or delete pod) — if fleet p99 recovers, that pod was toxic (noisy neighbor, stuck GC, bad node, connection leak).  

@@ -316,6 +316,12 @@ Query → (optional sparse BM25) + (dense ANN) → fuse scores / RRF → filters
 
 ## Why a query with an index can still be slow
 
+**Interview snapshot**
+- **What:** An index exists but the query is still slow (or unused).
+- **Why:** Indexes aren’t free wins — selectivity, plan choice, and heap lookups dominate.
+- **Trade-off:** Extra indexes speed some reads but slow writes and grow storage.
+- **Example:** `status = 'DONE'` matches 95% of rows → planner picks seq scan over the status index.
+
 Having an index ≠ the planner uses it well (or at all).
 
 | Reason | What happens |
@@ -346,6 +352,12 @@ RAG / AI retrieval failure modes: [AI systems](./ai-systems.md).
 ---
 
 ## Merge overlapping intervals
+
+**Interview snapshot**
+- **What:** Collapse overlapping `[start,end]` into a minimal disjoint set.
+- **Why:** Classic scheduling / calendar / resource-booking coding prompt.
+- **Trade-off:** Batch sort is simple O(n log n); stream can’t sort all up front.
+- **Example:** Batch: sort by start then sweep. Stream: ordered scan or tree of open intervals.
 
 **Problem:** given `(start, end)` intervals, merge overlaps → minimal disjoint list.
 

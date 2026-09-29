@@ -62,6 +62,12 @@ All shards are partitions; not all partitions are separate shards.
 
 ### Hot partitions
 
+**Interview snapshot**
+- **What:** Skewed key sends most load to one shard/partition.
+- **Why:** Fleet looks “scaled” but one consumer/broker melts.
+- **Trade-off:** Salting hot keys spreads load but can break strict per-key order.
+- **Example:** Celebrity `userId` or single `tenantId` on one Kafka partition.
+
 Celebrity `userId`, “today” time bucket, popular `showId` → one shard melts.
 
 Mitigate: salt keys, separate hot path, fan-out on read, dedicated pools.

@@ -16,6 +16,8 @@ How you split the app: monolith vs microservices, request-path **services** vs a
 - [Beyond services & workers](#beyond-services-workers)
 - [Cron / scheduler vs Temporal](#cron-scheduler-vs-temporal)
 - [DB topology & connections](#db-topology-connections)
+- [Untrusted / CPU-heavy work: Node vs Go](#untrusted--cpu-heavy-work-node-vs-go)
+- [Blocked Node event loop — detect / fix](#blocked-node-event-loop--detect--fix)
 
 ---
 
@@ -68,6 +70,12 @@ Client → API Service → DB
 ---
 
 ## API contracts other teams depend on
+
+**Interview snapshot**
+- **What:** Shared APIs start with resource model, errors, auth, idempotency, SLOs — then evolve safely.
+- **Why:** Other teams build on you; breaks are expensive.
+- **Trade-off:** `/v2` for breaks keeps `/v1` alive (cost) vs forcing all clients to upgrade.
+- **Example:** Add optional field in v1; rename required field → new version.
 
 **Decide first (platform / shared API)**
 
@@ -155,3 +163,47 @@ Budget ≈ `(api_replicas × pool) + (worker_concurrency × pool) + admin`.
 | Holding | Request-scoped only | Don’t hold conn during 3rd-party I/O |
 
 **Rule:** global connection budget + **PgBouncer/RDS Proxy**; Lambda/stream shapes same idea — bounded parallelism, not one conn per event.
+
+---
+
+## Untrusted / CPU-heavy work: Node vs Go
+
+**Interview snapshot**
+- **What:** Where to run untrusted user code or CPU-bound work when the API is Node vs Go.
+- **Why:** Node’s single-threaded event loop stalls on CPU; untrusted code can crash or steal the process.
+- **Trade-off:** Offloading to workers/sidecars adds latency and ops; keeping it in-process is simpler until it isn’t.
+- **Example:** Image resize / PDF render / sandbox eval → don’t do it on the Node request thread; queue to a Go/worker pool or isolate.
+
+| Work | Prefer | Why |
+|------|--------|-----|
+| **CPU-heavy** (encode, zip, crypto on big payloads) | Go / Rust worker, or Node **worker_threads** / separate process pool | Node event loop can’t serve others while busy |
+| **Untrusted** (user plugins, eval, scrape) | Sandbox (container/VM/gVisor), separate service, timeouts, no shared secrets | Blast radius; Node `vm` is not a security boundary |
+| **I/O-bound API** | Node or Go both fine | Async I/O shines; language less critical |
+| **Tight p99 + heavy CPU on path** | Go (or native) on that path | Fewer GC pauses / better multi-core defaults |
+
+**Interview line:** “Node for I/O APIs; push CPU and untrusted work to isolated workers — never block the event loop or share the API process with hostile code.”
+
+---
+
+## Blocked Node event loop — detect / fix
+
+**Interview snapshot**
+- **What:** Main thread stuck in sync CPU or sync I/O → all requests freeze (latency ↑, health checks fail).
+- **Why:** One bad handler starves the whole process.
+- **Trade-off:** Worker threads / separate processes cost complexity; sync APIs are easier to write wrong.
+- **Example:** `JSON.parse` on a 50MB body or sync `fs.readFileSync` in a hot route → event-loop lag spikes.
+
+**Detect**
+
+- Metric: **event loop delay / lag** (`perf_hooks.monitorEventLoopDelay`, clinic/doctor, APM “event loop” charts)
+- Symptom: p99 ↑ across **all** routes on that pod; CPU high or “stuck”; readiness may still pass until timeout
+
+**Fix**
+
+1. Find sync hot spots (CPU profiles, `async_hooks` / APM spans).  
+2. Move CPU to `worker_threads`, child process, or **async worker service**.  
+3. Replace sync FS/crypto with async; stream large payloads.  
+4. Bound body size; reject huge inputs early.  
+5. Fail readiness if loop lag exceeds budget (drain traffic).
+
+**Interview line:** “Watch event-loop lag; treat a blocked loop like a saturated thread pool — offload CPU, never sync I/O on the hot path.”

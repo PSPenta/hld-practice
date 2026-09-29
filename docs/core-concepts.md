@@ -14,6 +14,7 @@ Ideas interviewers expect you to **apply** when comparing designs. Prefer concre
 - [CRDT (Conflict-free Replicated Data Type)](#crdt-conflict-free-replicated-data-type)
 - [Idempotency](#idempotency)
   - [Where to enforce (request path)](#where-to-enforce-request-path)
+- [Safe vs idempotent HTTP methods](#safe-vs-idempotent-http-methods)
 - [Optimistic locking & versioning](#optimistic-locking-versioning)
 - [Latency vs throughput](#latency-vs-throughput)
 - [Latency & metrics vocabulary](#latency-metrics-vocabulary)
@@ -85,6 +86,12 @@ When you say “eventual consistency,” CRDTs are one *concrete* merge story �
 
 ## Idempotency
 
+**Interview snapshot**
+- **What:** Same logical request twice → same effect; client reuses the same key on retry.
+- **Why:** Timeouts + at-least-once delivery otherwise double-charge / double-notify.
+- **Trade-off:** Must store key→outcome (storage/TTL); clients must not mint a new key per retry.
+- **Example:** Payment `Idempotency-Key` header; lost 200 → retry returns first result.
+
 Same request applied twice → same effect as once.
 
 Critical for:
@@ -114,6 +121,26 @@ Patterns:
 **Wrong interview answer:** “Use exactly-once delivery.” Brokers are usually **at-least-once**; you make the **effect** exactly-once via idempotency.
 
 **Interview line:** “Client owns the key for the logical operation; server persists key→outcome; retries are safe reads of that outcome.”
+
+---
+
+## Safe vs idempotent HTTP methods
+
+**Interview snapshot**
+- **What:** **Safe** = no side effects (read-only). **Idempotent** = N identical requests leave the same server state as 1.
+- **Why:** Clients, caches, and retries rely on these contracts; misuse causes double charges or cache corruption.
+- **Trade-off:** Making every write idempotent (keys/conditional updates) costs storage and client discipline.
+- **Example:** Retrying `GET /orders/1` is fine; retrying `POST /charges` without an idempotency key can double-charge.
+
+| Method | Safe? | Idempotent? | Notes |
+|--------|-------|-------------|-------|
+| **GET / HEAD / OPTIONS** | Yes | Yes | Cacheable when allowed; no body side effects |
+| **PUT** | No | Yes | Replace resource at URI; same body → same state |
+| **DELETE** | No | Yes | Delete once or already-gone → same end state |
+| **POST** | No | **No** (by default) | Creates / triggers; need **Idempotency-Key** for money |
+| **PATCH** | No | Usually no | Partial update; make idempotent with versions/ETags if retries matter |
+
+**Interview line:** “GET is safe+idempotent; PUT/DELETE idempotent but not safe; POST needs an explicit idempotency story.”
 
 ## Optimistic locking & versioning
 
@@ -217,6 +244,12 @@ Protects your system (and downstream) from abuse and stampedes.
 
 ### Per API key — where it lives and which algorithm
 
+**Interview snapshot**
+- **What:** Cap RPS (usually token bucket) per key at the gateway.
+- **Why:** Protects your service and downstream from abuse/noisy neighbors.
+- **Trade-off:** Tight limits protect capacity but block legitimate bursts.
+- **Example:** Merchant key allowed 100 rps + burst 200; over → `429` + `Retry-After`.
+
 | Question | Answer |
 |----------|--------|
 | **Where** | **API gateway / edge** (first choice) and/or service middleware; key = API key / tenant / IP |
@@ -224,6 +257,12 @@ Protects your system (and downstream) from abuse and stampedes.
 | **Response** | `429` + `Retry-After` |
 
 ### What if we have 10 gateway instances?
+
+**Interview snapshot**
+- **What:** N gateways each with local counters multiply the effective quota by N.
+- **Why:** “Per-key limit” is wrong unless state is shared.
+- **Trade-off:** Redis shared counter = correct global limit, but Redis is on the critical path.
+- **Example:** 100 rps limit × 10 GWs in-memory → 1000 rps actual; fix with Redis token bucket.
 
 Local in-memory counters **don’t share state** → each GW allows full quota → **10× limit**.
 
@@ -236,6 +275,12 @@ Local in-memory counters **don’t share state** → each GW allows full quota �
 **Interview line:** “Per-key token bucket at the gateway; with N gateways the counter lives in Redis so the fleet shares one budget.”
 
 ### Multi-tier / enterprise bandwidth (interview variant)
+
+**Interview snapshot**
+- **What:** Free/Pro fixed caps; Enterprise reserved bandwidth + optional shared pool.
+- **Why:** Paid tenants need isolation from noisy free traffic.
+- **Trade-off:** Reserved capacity wastes idle quota unless a shared pool can borrow.
+- **Example:** Enterprise reserved 5k rps; unused Free capacity fills a fair shared pool.
 
 | Tier | Policy |
 |------|--------|

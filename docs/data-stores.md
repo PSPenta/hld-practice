@@ -9,6 +9,7 @@ Choosing where data lives: transactional DBs, analytics, time series, and AI ret
 ## Index
 
 - [ACID vs BASE](#acid-vs-base)
+- [Isolation levels (anomalies)](#isolation-levels-anomalies)
 - [MVCC & long-running transactions](#mvcc--long-running-transactions)
 - [SQL vs NoSQL](#sql-vs-nosql)
 - [OLTP vs OLAP](#oltp-vs-olap)
@@ -18,6 +19,7 @@ Choosing where data lives: transactional DBs, analytics, time series, and AI ret
 - [AI systems (RAG / LLM)](./ai-systems.md) — prod failures, eval, off request path
 - [LSM trees (storage engine)](#lsm-trees-storage-engine)
 - [DB deployment strategies](#db-deployment-strategies)
+- [Online schema change / large-table ALTER](#online-schema-change--large-table-alter)
 - [Quick chooser](#quick-chooser)
 
 ---
@@ -44,7 +46,39 @@ BASE is a slogan, not a product checkbox — say *which* invariant is relaxed.
 
 ---
 
+## Isolation levels (anomalies)
+
+**Interview snapshot**
+- **What:** How much one transaction can see of concurrent others’ writes.
+- **Why:** Wrong level → dirty/non-repeatable/phantom bugs or needless lock pain.
+- **Trade-off:** Stronger isolation = fewer anomalies, more blocking / aborts.
+- **Example:** Inventory check under READ COMMITTED can see a seat free that another txn already booked (phantom / non-repeatable depending on DB).
+
+| Anomaly | Meaning |
+|---------|---------|
+| **Dirty read** | Read a write that later **rolls back** |
+| **Non-repeatable read** | Re-read same row → different committed value |
+| **Phantom read** | Re-run same range query → new/missing rows |
+| **Lost update** | Two read-modify-write overwrite each other |
+
+| Level (SQL) | Dirty | Non-repeatable | Phantom | Notes |
+|-------------|-------|----------------|---------|-------|
+| **READ UNCOMMITTED** | possible | possible | possible | Rarely used |
+| **READ COMMITTED** | prevented | possible | possible | Postgres default; each statement sees latest committed |
+| **REPEATABLE READ** | prevented | prevented | DB-dependent* | Snapshot of first read; *Postgres prevents phantoms via SSI-ish snapshots; MySQL RR uses gap locks |
+| **SERIALIZABLE** | prevented | prevented | prevented | Looks like serial execution; more aborts/retries |
+
+**Interview line:** “Name the anomaly you fear (dirty / non-repeatable / phantom / lost update), then pick the weakest level that prevents it — don’t default to SERIALIZABLE.”
+
+---
+
 ## MVCC & long-running transactions
+
+**Interview snapshot**
+- **What:** MVCC keeps row versions so readers/writers don’t block; a long open txn pins an old snapshot.
+- **Why:** That pin blocks vacuum → bloat → everyone else’s queries get slower.
+- **Trade-off:** Short transactions keep the system healthy; very long “one big txn” feels simpler in app code but taxes the fleet.
+- **Example:** A report txn open for 2 hours → dead tuples pile up → OLTP p99 climbs until it commits.
 
 **MVCC (Multi-Version Concurrency Control):** readers don’t block writers (and usually vice versa). Each row version keeps enough info for a transaction to see a **consistent snapshot**. Postgres-style: updates/deletes leave old versions until **VACUUM** can reclaim them.
 
@@ -216,6 +250,31 @@ State **RPO/RTO** when you draw multi-region DB. Detail: [Reliability — multi-
 | **Read + write both hot** | Split paths: sync write to primary; async CDC to read stores; don’t force one DB shape for both |
 
 **Connection note:** every replica and every service/worker pool multiplies connections — use a pooler; see [Service architecture — DB topology & connections](./service-architecture.md#db-topology-connections).
+
+---
+
+## Online schema change / large-table ALTER
+
+**Interview snapshot**
+- **What:** Evolve schema on a big table without long exclusive locks / downtime.
+- **Why:** Naive `ALTER TABLE` on millions of rows can lock writes for minutes–hours.
+- **Trade-off:** Online tools (pt-osc, gh-ost, native online DDL) are safer but slower and need dual-write/cutover discipline.
+- **Example:** Add nullable column with default via online DDL → backfill in batches → switch app → drop old path.
+
+**Naive ALTER risk:** table rewrite / exclusive lock → writers queue → outage.
+
+**Safer patterns**
+
+| Pattern | Idea |
+|---------|------|
+| **Expand–contract** | Add nullable column / new table → deploy dual-write → backfill → switch reads → drop old |
+| **Online DDL tools** | `gh-ost` / `pt-online-schema-change` / cloud provider online DDL — copy + trigger/binlog, cutover |
+| **Batch backfill** | Chunked UPDATEs with sleep; watch replication lag |
+| **New table + swap** | Build shadow table; rename atomically at cutover |
+
+**Don’t:** run heavy `ALTER` in peak traffic without a rollback plan; don’t assume “Postgres is MVCC so ALTER is free” — still verify lock mode (`ACCESS EXCLUSIVE` vs weaker).
+
+**Interview line:** “Large-table change = expand–contract or online DDL + lag-aware backfill, not a blocking ALTER in prod.”
 
 ---
 

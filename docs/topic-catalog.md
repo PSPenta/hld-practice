@@ -125,6 +125,8 @@
   - [DB topology & connections](./service-architecture.md#db-topology-connections)
     - [Do service and workers share one DB?](./service-architecture.md#do-service-and-workers-share-one-db)
     - [Connection pools](./service-architecture.md#connection-pools)
+  - [Untrusted / CPU-heavy work: Node vs Go](./service-architecture.md#untrusted--cpu-heavy-work-node-vs-go)
+  - [Blocked Node event loop — detect / fix](./service-architecture.md#blocked-node-event-loop--detect--fix)
 
 - **[Core Concepts](./core-concepts.md)**
   - [CAP and PACELC (practical view)](./core-concepts.md#cap-and-pacelc-practical-view)
@@ -133,6 +135,7 @@
   - [CRDT (Conflict-free Replicated Data Type)](./core-concepts.md#crdt-conflict-free-replicated-data-type)
   - [Idempotency](./core-concepts.md#idempotency)
     - [Where to enforce (request path)](./core-concepts.md#where-to-enforce-request-path) — retried POST key
+  - [Safe vs idempotent HTTP methods](./core-concepts.md#safe-vs-idempotent-http-methods)
   - [Optimistic locking & versioning](./core-concepts.md#optimistic-locking-versioning)
   - [Latency vs throughput](./core-concepts.md#latency-vs-throughput)
   - [Latency & metrics vocabulary](./core-concepts.md#latency-metrics-vocabulary)
@@ -179,6 +182,7 @@
 
 - **[Data Stores](./data-stores.md)**
   - [ACID vs BASE](./data-stores.md#acid-vs-base)
+  - [Isolation levels (anomalies)](./data-stores.md#isolation-levels-anomalies)
   - [MVCC & long-running transactions](./data-stores.md#mvcc--long-running-transactions)
   - [SQL vs NoSQL](./data-stores.md#sql-vs-nosql)
   - [OLTP vs OLAP](./data-stores.md#oltp-vs-olap)
@@ -192,6 +196,7 @@
     - [Single region vs multi-region](./data-stores.md#single-region-vs-multi-region)
     - [Replication in multi-region](./data-stores.md#replication-in-multi-region)
     - [Read-heavy vs write-heavy](./data-stores.md#read-heavy-vs-write-heavy)
+  - [Online schema change / large-table ALTER](./data-stores.md#online-schema-change--large-table-alter)
   - [Quick chooser](./data-stores.md#quick-chooser)
 
 - **[AI Systems (RAG / LLM in products)](./ai-systems.md)**
@@ -199,6 +204,10 @@
   - [What is an embedding (for backend engineers)](./ai-systems.md#what-is-an-embedding-for-backend-engineers)
   - [What breaks first in production RAG](./ai-systems.md#what-breaks-first-in-production-rag)
   - [Evaluate retrieval separately from generation](./ai-systems.md#evaluate-retrieval-separately-from-generation)
+  - [LLM-as-judge in a scoring pipeline](./ai-systems.md#llm-as-judge-in-a-scoring-pipeline)
+  - [Prompting vs RAG vs fine-tuning](./ai-systems.md#prompting-vs-rag-vs-fine-tuning)
+  - [Tool / function calling (who validates args)](./ai-systems.md#tool--function-calling-who-validates-args)
+  - [Prompt injection in tool-calling agents](./ai-systems.md#prompt-injection-in-tool-calling-agents)
   - [When an LLM should not be in the request path](./ai-systems.md#when-an-llm-should-not-be-in-the-request-path)
   - [Keep LLM out of the path but still use it](./ai-systems.md#keep-llm-out-of-the-path-but-still-use-it)
   - [LLM cost doubled — levers](./ai-systems.md#llm-cost-doubled--levers)
@@ -211,6 +220,7 @@
   - [Cache invalidation](./caching.md#cache-invalidation)
   - [Eviction policies](./caching.md#eviction-policies)
   - [Eviction vs invalidation](./caching.md#eviction-vs-invalidation)
+  - [What must never be cached](./caching.md#what-must-never-be-cached)
   - [Hit rate crashed overnight (first 10 minutes)](./caching.md#hit-rate-crashed-overnight-first-10-minutes)
   - [Other cache topics worth knowing](./caching.md#other-cache-topics-worth-knowing)
 
@@ -306,6 +316,7 @@
 
 - **[Deployment & Operations](./deployment-and-ops.md)**
   - [Docker](./deployment-and-ops.md#docker)
+    - [Immutable images: tags vs digests](./deployment-and-ops.md#immutable-images-tags-vs-digests)
   - [Kubernetes (K8s)](./deployment-and-ops.md#kubernetes-k8s)
     - [Cluster, Node, Pod](./deployment-and-ops.md#cluster-node-pod)
     - [Kubelet & Kube-proxy](./deployment-and-ops.md#kubelet--kube-proxy)

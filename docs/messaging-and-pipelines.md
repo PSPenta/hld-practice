@@ -51,6 +51,12 @@ Same three jobs (work queue, pub/sub, stream), different parts. None delete a me
 
 ### Kafka partitions — what they give and take away
 
+**Interview snapshot**
+- **What:** Topic shards; parallelism unit; same key → same partition → order.
+- **Why:** How you scale consumers and preserve per-entity order.
+- **Trade-off:** More partitions → more parallelism, but heavier rebalances and no global order.
+- **Example:** `userId` key keeps that user’s events ordered; stuck offset blocks only that partition.
+
 | Give | Take away |
 |------|-----------|
 | **Parallelism** — scale consumers ≈ number of partitions (one consumer per partition per group) | **More partitions ≠ free** — more open files, more replication traffic, slower rebalances |
@@ -278,6 +284,13 @@ Also hear: **Spark Structured Streaming** (micro-batch) vs **Flink** (continuous
 Write business row + “event to publish” in the **same DB transaction**; a relay publishes to Kafka/SQS. Avoids dual-write loss.
 
 ### Inbox / dedupe table
+
+**Interview snapshot**
+- **What:** Broker may redeliver; consumer dedupes with inbox/`eventId` before side effects.
+- **Why:** “Exactly-once mode” isn’t the answer — idempotent effect is.
+- **Trade-off:** Dedupe table / unique constraint adds write path; skipping it risks double ledger posts.
+- **Example:** `INSERT processed_events(event_id)` unique → duplicate → no-op.
+
 Consumer stores `eventId` (or payment id) **before** side effects → idempotent under at-least-once delivery.
 
 **Payment event consumer (interview answer)**
