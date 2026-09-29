@@ -19,6 +19,8 @@ How you ship and run systems: containers, orchestration, release strategies, and
   - [Namespace](#namespace)
   - [Horizontal Pod Autoscaler (HPA)](#horizontal-pod-autoscaler-hpa)
   - [Probes, resources & Staff gotchas](#probes-resources--staff-gotchas)
+  - [Requests vs limits (sizing)](#requests-vs-limits-sizing)
+  - [Pod OOMKilled every few hours](#pod-oomkilled-every-few-hours)
   - [When to use what (cheat sheet)](#when-to-use-what-cheat-sheet)
 - [Kubernetes vs Amazon ECS](#kubernetes-vs-amazon-ecs)
 - [Deployment strategies](#deployment-strategies)
@@ -263,10 +265,32 @@ Automatically sets Deployment/ReplicaSet/StatefulSet **replica count** from metr
 
 | Resource field | Effect |
 |----------------|--------|
-| **requests** | Scheduler + HPA baseline; guarantees |
-| **limits** | Cap; CPU throttle / OOM kill if exceeded |
+| **requests** | Scheduler + HPA baseline; **guaranteed** reservation |
+| **limits** | Cap; CPU throttle / **OOMKill** if exceeded |
+
+### Requests vs limits (sizing)
+
+| Field | Set it to | Why |
+|-------|-----------|-----|
+| **requests.cpu / memory** | ≈ **steady-state** need (p50–p75 under normal peak) | Scheduler packs honestly; HPA % is vs requests |
+| **limits.memory** | ≈ **max you can afford** before kill (headroom for spikes) | Crossing limit → **OOMKilled** |
+| **limits.cpu** | Often ≥ requests; some omit CPU limit to avoid throttle | CPU limit → throttle (latency), not always kill |
+
+**Rules of thumb:** `requests ≤ limits`; don’t set requests near zero (overcommit → noisy neighbor); don’t set memory limit = request with zero headroom if you GC/spike; align HPA to requests.
 
 **PodDisruptionBudget (PDB):** limit voluntary disruptions (drains, upgrades) so you keep `minAvailable` healthy Pods — Staff signal for HA APIs.
+
+### Pod OOMKilled every few hours
+
+1. **Confirm** — `OOMKilled` in `kubectl describe` / events; container exit 137.  
+2. **Graph memory** — climb then kill? Leak vs periodic batch spike.  
+3. **Heap vs RSS** — Java/Go heap dump; native leak; unbounded cache/map.  
+4. **Traffic correlation** — one tenant, one endpoint, cron in-pod.  
+5. **Short-term** — raise **memory limit** (and request) to stop the bleed **while** fixing.  
+6. **Fix** — bound caches, stream instead of buffer, fix leak, move heavy job to a Job/worker with its own limit.  
+7. **Don’t** only raise limit forever — masks the bug until the node dies.
+
+**Interview line:** “OOM every few hours is usually a leak or unbounded buffer; raise limit to stabilize, then find the growth curve.”
 
 ---
 

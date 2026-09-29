@@ -139,6 +139,8 @@
   - [Availability & failure modes](./core-concepts.md#availability-failure-modes)
   - [Partitioning & hot keys](./core-concepts.md#partitioning-hot-keys)
   - [Rate limiting](./core-concepts.md#rate-limiting)
+    - [Per API key — where + algorithm](./core-concepts.md#per-api-key--where-it-lives-and-which-algorithm)
+    - [10 gateway instances](./core-concepts.md#what-if-we-have-10-gateway-instances)
     - [Multi-tier / enterprise bandwidth (interview variant)](./core-concepts.md#multi-tier--enterprise-bandwidth-interview-variant)
   - [Backpressure](./core-concepts.md#backpressure)
   - [Exponential backoff](./core-concepts.md#exponential-backoff)
@@ -177,6 +179,7 @@
 
 - **[Data Stores](./data-stores.md)**
   - [ACID vs BASE](./data-stores.md#acid-vs-base)
+  - [MVCC & long-running transactions](./data-stores.md#mvcc--long-running-transactions)
   - [SQL vs NoSQL](./data-stores.md#sql-vs-nosql)
   - [OLTP vs OLAP](./data-stores.md#oltp-vs-olap)
   - [TiDB (distributed SQL) vs TSDB (time-series DB)](./data-stores.md#tidb-distributed-sql-vs-tsdb-time-series-db)
@@ -193,10 +196,12 @@
 
 - **[AI Systems (RAG / LLM in products)](./ai-systems.md)**
   - [RAG pipeline (recap)](./ai-systems.md#rag-pipeline-recap)
+  - [What is an embedding (for backend engineers)](./ai-systems.md#what-is-an-embedding-for-backend-engineers)
   - [What breaks first in production RAG](./ai-systems.md#what-breaks-first-in-production-rag)
   - [Evaluate retrieval separately from generation](./ai-systems.md#evaluate-retrieval-separately-from-generation)
   - [When an LLM should not be in the request path](./ai-systems.md#when-an-llm-should-not-be-in-the-request-path)
   - [Keep LLM out of the path but still use it](./ai-systems.md#keep-llm-out-of-the-path-but-still-use-it)
+  - [LLM cost doubled — levers](./ai-systems.md#llm-cost-doubled--levers)
 
 - **[Caching (Deep Dive)](./caching.md)**
   - [Quick recap of patterns](./caching.md#quick-recap-of-patterns) — when cache-aside vs write-through
@@ -205,11 +210,14 @@
   - [Cache penetration](./caching.md#cache-penetration)
   - [Cache invalidation](./caching.md#cache-invalidation)
   - [Eviction policies](./caching.md#eviction-policies)
+  - [Eviction vs invalidation](./caching.md#eviction-vs-invalidation)
+  - [Hit rate crashed overnight (first 10 minutes)](./caching.md#hit-rate-crashed-overnight-first-10-minutes)
   - [Other cache topics worth knowing](./caching.md#other-cache-topics-worth-knowing)
 
 - **[Messaging & Data Pipelines](./messaging-and-pipelines.md)**
   - [Pub/Sub vs Message Queue](./messaging-and-pipelines.md#pubsub-vs-message-queue)
   - [Kafka vs RabbitMQ vs SQS](./messaging-and-pipelines.md#kafka-vs-rabbitmq-vs-sqs)
+    - [Kafka partitions — what they give and take away](./messaging-and-pipelines.md#kafka-partitions--what-they-give-and-take-away)
   - [Cluster metadata & coordination (ZooKeeper, KRaft, and alternatives)](./messaging-and-pipelines.md#cluster-metadata-coordination-zookeeper-kraft-and-alternatives)
     - [What ZooKeeper did for Kafka (classic)](./messaging-and-pipelines.md#what-zookeeper-did-for-kafka-classic)
     - [KRaft (Kafka without ZooKeeper)](./messaging-and-pipelines.md#kraft-kafka-without-zookeeper)
@@ -241,6 +249,7 @@
   - [Choosing proximity vs keyword vs semantic](./algorithms-and-indexes.md#choosing-proximity-vs-keyword-vs-semantic)
   - [Why a query with an index can still be slow](./algorithms-and-indexes.md#why-a-query-with-an-index-can-still-be-slow)
     - [How to prove which reason it is](./algorithms-and-indexes.md#how-to-prove-which-reason-it-is) — `EXPLAIN ANALYZE`
+  - [Merge overlapping intervals](./algorithms-and-indexes.md#merge-overlapping-intervals) — batch + stream
   - [Other index / structure prerequisites](./algorithms-and-indexes.md#other-index-structure-prerequisites)
 
 ---
@@ -275,6 +284,9 @@
     - [When to use](./reliability-and-slos.md#when-to-use)
     - [When **not** to blind-retry](./reliability-and-slos.md#when-not-to-blind-retry)
     - [Pair with](./reliability-and-slos.md#pair-with)
+  - [Retries make outages worse](./reliability-and-slos.md#retries-make-outages-worse) — why + jitter
+  - [p99 up, errors flat (post-deploy)](./reliability-and-slos.md#p99-up-errors-flat-post-deploy)
+    - [What if it is only one pod?](./reliability-and-slos.md#what-if-it-is-only-one-pod)
   - [Backpressure](./reliability-and-slos.md#backpressure)
   - [Reliability in fintech (Razorpay-class)](./reliability-and-slos.md#reliability-in-fintech-razorpay-class)
 
@@ -304,6 +316,8 @@
     - [Namespace](./deployment-and-ops.md#namespace)
     - [Horizontal Pod Autoscaler (HPA)](./deployment-and-ops.md#horizontal-pod-autoscaler-hpa)
     - [Probes, resources & Staff gotchas](./deployment-and-ops.md#probes-resources--staff-gotchas) — readiness vs liveness
+    - [Requests vs limits (sizing)](./deployment-and-ops.md#requests-vs-limits-sizing)
+    - [Pod OOMKilled every few hours](./deployment-and-ops.md#pod-oomkilled-every-few-hours)
     - [When to use what (cheat sheet)](./deployment-and-ops.md#when-to-use-what-cheat-sheet)
   - [Kubernetes vs Amazon ECS](./deployment-and-ops.md#kubernetes-vs-amazon-ecs)
   - [Deployment strategies](./deployment-and-ops.md#deployment-strategies)
@@ -335,16 +349,32 @@
 | Topic | Link |
 |-------|------|
 | Index still slow + EXPLAIN | [Why a query with an index can still be slow](./algorithms-and-indexes.md#why-a-query-with-an-index-can-still-be-slow) |
+| MVCC / long-running txn | [MVCC & long-running transactions](./data-stores.md#mvcc--long-running-transactions) |
+| Cache hit rate 95%→60% (first 10 min) | [Hit rate crashed overnight](./caching.md#hit-rate-crashed-overnight-first-10-minutes) |
+| Eviction vs invalidation | [Eviction vs invalidation](./caching.md#eviction-vs-invalidation) |
 | Cache-aside vs write-through | [Caching patterns](./caching.md#quick-recap-of-patterns) |
 | Cache stampede | [Stampede](./caching.md#cache-stampede-aka-dogpile-thundering-herd) |
+| Kafka partitions — give / take | [Kafka partitions](./messaging-and-pipelines.md#kafka-partitions--what-they-give-and-take-away) |
+| Hot partition | [Hot partitions](./scaling.md#hot-partitions) |
+| Retries make outages worse | [Retries make outages worse](./reliability-and-slos.md#retries-make-outages-worse) |
+| What is jitter for? | [Exponential backoff / jitter](./reliability-and-slos.md#exponential-backoff) |
+| Rate limit per API key | [Per API key](./core-concepts.md#per-api-key--where-it-lives-and-which-algorithm) |
+| 10 gateway instances | [Shared Redis quota](./core-concepts.md#what-if-we-have-10-gateway-instances) |
+| Rate limiter 3 tiers / enterprise pool | [Multi-tier rate limiting](./core-concepts.md#multi-tier--enterprise-bandwidth-interview-variant) |
+| p99↑ errors flat after deploy | [p99 up, errors flat](./reliability-and-slos.md#p99-up-errors-flat-post-deploy) |
+| Only one pod slow | [One pod](./reliability-and-slos.md#what-if-it-is-only-one-pod) |
+| Pod OOMKilled | [OOMKilled playbook](./deployment-and-ops.md#pod-oomkilled-every-few-hours) |
+| Requests vs limits | [Requests vs limits](./deployment-and-ops.md#requests-vs-limits-sizing) |
+| What is an embedding + common mistake | [Embeddings](./ai-systems.md#what-is-an-embedding-for-backend-engineers) |
+| LLM cost doubled / least-hurt lever | [LLM cost levers](./ai-systems.md#llm-cost-doubled--levers) |
+| RAG / LLM off path | [AI systems](./ai-systems.md) |
+| Merge overlapping intervals (+ stream) | [Merge intervals](./algorithms-and-indexes.md#merge-overlapping-intervals) |
 | Idempotency / retried POST | [Idempotency](./core-concepts.md#idempotency) |
 | At-least-once + payment consumer | [Inbox / dedupe](./messaging-and-pipelines.md#inbox-dedupe-table) |
 | API contract / versioning | [API contracts](./service-architecture.md#api-contracts-other-teams-depend-on) |
 | SLI / SLO / error budget | [SLI, SLO, SLA](./reliability-and-slos.md#sli-slo-sla) · [Error budgets](./reliability-and-slos.md#error-budgets) |
 | K8s vs ECS | [Kubernetes vs Amazon ECS](./deployment-and-ops.md#kubernetes-vs-amazon-ecs) |
 | Readiness probe | [Probes](./deployment-and-ops.md#probes-resources--staff-gotchas) |
-| Rate limiter 3 tiers / enterprise pool | [Multi-tier rate limiting](./core-concepts.md#multi-tier--enterprise-bandwidth-interview-variant) · [Notification diagram](../diagrams/notification-system/) |
-| RAG / LLM off path | [AI systems](./ai-systems.md) |
 
 ---
 

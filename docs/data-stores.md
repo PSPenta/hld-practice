@@ -9,6 +9,7 @@ Choosing where data lives: transactional DBs, analytics, time series, and AI ret
 ## Index
 
 - [ACID vs BASE](#acid-vs-base)
+- [MVCC & long-running transactions](#mvcc--long-running-transactions)
 - [SQL vs NoSQL](#sql-vs-nosql)
 - [OLTP vs OLAP](#oltp-vs-olap)
 - [TiDB (distributed SQL) vs TSDB (time-series DB)](#tidb-distributed-sql-vs-tsdb-time-series-db)
@@ -40,6 +41,26 @@ Choosing where data lives: transactional DBs, analytics, time series, and AI ret
 - Real systems mix both: ACID for money path, eventual for read models
 
 BASE is a slogan, not a product checkbox — say *which* invariant is relaxed.
+
+---
+
+## MVCC & long-running transactions
+
+**MVCC (Multi-Version Concurrency Control):** readers don’t block writers (and usually vice versa). Each row version keeps enough info for a transaction to see a **consistent snapshot**. Postgres-style: updates/deletes leave old versions until **VACUUM** can reclaim them.
+
+### What a long-running transaction does to the rest of the system
+
+| Effect | Why |
+|--------|-----|
+| **Bloat** | Old row versions stay visible to that snapshot → table/index grow; more IO |
+| **Slow queries for everyone** | Seq/index scans touch more dead tuples; cache less effective |
+| **VACUUM / autovacuum stalls** | Can’t remove versions still needed by the open txn (or older snapshots) |
+| **Replication / slots lag** (logical) | Slot holds WAL until consumer catches up — disk fills |
+| **Lock / idle-in-transaction** | Holds row/table locks or connection pool slots; others wait |
+
+**Interview line:** “Long open transactions pin an old snapshot under MVCC → dead tuples pile up → everyone pays with bloat and slower scans until the txn ends and vacuum can run.”
+
+**Mitigations:** short transactions; no interactive pauses mid-txn; statement/idle timeouts; watch `idle_in_transaction`; batch work in small commits; monitor bloat / vacuum lag.
 
 ---
 

@@ -20,6 +20,8 @@ Ideas interviewers expect you to **apply** when comparing designs. Prefer concre
 - [Availability & failure modes](#availability-failure-modes)
 - [Partitioning & hot keys](#partitioning-hot-keys)
 - [Rate limiting](#rate-limiting)
+  - [Per API key — where it lives and which algorithm](#per-api-key--where-it-lives-and-which-algorithm)
+  - [What if we have 10 gateway instances?](#what-if-we-have-10-gateway-instances)
   - [Multi-tier / enterprise bandwidth (interview variant)](#multi-tier--enterprise-bandwidth-interview-variant)
 - [Backpressure](#backpressure)
 - [Exponential backoff](#exponential-backoff)
@@ -213,13 +215,25 @@ Mitigations: salt/hash buckets, separate “hot” path, local caches, fan-out o
 
 Protects your system (and downstream) from abuse and stampedes.
 
-Algorithms (know one well):
+### Per API key — where it lives and which algorithm
 
-- **Token bucket** — burst + sustained rate
-- **Leaky bucket** — smooth outflow
-- **Fixed / sliding window** — simple counters (Redis)
+| Question | Answer |
+|----------|--------|
+| **Where** | **API gateway / edge** (first choice) and/or service middleware; key = API key / tenant / IP |
+| **Algorithm** | Prefer **token bucket** (sustained rate + burst). Sliding window also fine. Fixed window is simplest but boundary bursts |
+| **Response** | `429` + `Retry-After` |
 
-Place at gateway and/or per-tenant / per-IP / per-API key. Return `429` with clear retry guidance.
+### What if we have 10 gateway instances?
+
+Local in-memory counters **don’t share state** → each GW allows full quota → **10× limit**.
+
+| Approach | Trade-off |
+|----------|-----------|
+| **Central store (Redis)** — `INCR` / token-bucket Lua per key | Correct global limit; Redis is critical path (timeouts + fail-open vs fail-closed) |
+| **Sticky routing by API key** | Soft affinity; still need shared store for safety |
+| **Per-instance quota = global/N** | Rough; unfair if traffic skews to few GWs |
+
+**Interview line:** “Per-key token bucket at the gateway; with N gateways the counter lives in Redis so the fleet shares one budget.”
 
 ### Multi-tier / enterprise bandwidth (interview variant)
 

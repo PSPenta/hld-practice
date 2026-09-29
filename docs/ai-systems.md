@@ -9,10 +9,12 @@ Interview depth for shipping LLM features: retrieval quality, eval, and **when t
 ## Index
 
 - [RAG pipeline (recap)](#rag-pipeline-recap)
+- [What is an embedding (for backend engineers)](#what-is-an-embedding-for-backend-engineers)
 - [What breaks first in production RAG](#what-breaks-first-in-production-rag)
 - [Evaluate retrieval separately from generation](#evaluate-retrieval-separately-from-generation)
 - [When an LLM should not be in the request path](#when-an-llm-should-not-be-in-the-request-path)
 - [Keep LLM out of the path but still use it](#keep-llm-out-of-the-path-but-still-use-it)
+- [LLM cost doubled — levers](#llm-cost-doubled--levers)
 
 ---
 
@@ -24,6 +26,18 @@ User query → embed → retrieve top-k → (rerank / ACL filter) → LLM → an
 ```
 
 Vector DB is a **retrieval index**, not the source of truth. ACL must filter **before** or **with** retrieval.
+
+---
+
+## What is an embedding (for backend engineers)
+
+An **embedding** is a **fixed-length float vector** produced by a model from text (or image). Nearby vectors ≈ similar meaning. You store vectors in an ANN index; at query time you embed the question with the **same model** and search nearest neighbors.
+
+**One thing people get wrong:** indexing with model A / version 1 and querying with model B / version 2 — spaces don’t align → garbage retrieval. Pin **model id + version** for embed-at-index and embed-at-query.
+
+Also wrong: treating the vector DB as the source of truth (KB/docs still own content + ACL).
+
+More: [Semantic search](./algorithms-and-indexes.md#semantic-search).
 
 ---
 
@@ -87,3 +101,26 @@ OK **on** the request path: low-QPS assistive UX (explain report, draft message)
 **Interview line:** “Accept fast and enqueue; LLM in a worker with retries/DLQ. Sync path stays within SLO without the model.”
 
 See also: [Services vs workers](./service-architecture.md#services-vs-workers).
+
+---
+
+## LLM cost doubled — levers
+
+Cost ≈ **tokens in × tokens out × price × QPS** (plus embedding/rerank calls).
+
+| Lever | What you change | Quality impact |
+|-------|-----------------|----------------|
+| **Cache** hits (prompt/answer/embedding) | Fewer model calls | **Least hurt** if cache key is correct |
+| **Prompt / context trim** | Fewer input tokens | Low–medium if you keep needed citations |
+| **Cheaper / smaller model** on easy path | Lower $/1K tokens | Medium — route hard cases to big model |
+| **Lower max tokens / stop early** | Fewer output tokens | Medium — shorter answers |
+| **Retrieve less / better** (top-k, rerank) | Smaller context | Can **improve** quality if noise drops |
+| **Async / batch** | Same tokens, better utilization | Neutral to UX latency |
+| **Rate limit / product quotas** | Less usage | Product constraint |
+| **Fine-tune / distill** | Long-term cheaper | Upfront cost; quality TBD |
+
+### Which lever hurts quality least?
+
+Usually **caching identical/near-identical requests** and **dropping unused context**, then **model routing** (small model default). Cutting retrieval/context blindly or forcing a tiny model on hard tasks hurts quality most.
+
+**Interview line:** “I’d check token volume vs QPS first — cache and trim before I sacrifice the model.”

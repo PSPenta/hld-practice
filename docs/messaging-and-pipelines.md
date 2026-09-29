@@ -10,6 +10,7 @@ How systems move data asynchronously: queues, streams, logs, and processors.
 
 - [Pub/Sub vs Message Queue](#pubsub-vs-message-queue)
 - [Kafka vs RabbitMQ vs SQS](#kafka-vs-rabbitmq-vs-sqs)
+  - [Kafka partitions — what they give and take away](#kafka-partitions--what-they-give-and-take-away)
 - [Cluster metadata & coordination (ZooKeeper, KRaft, and alternatives)](#cluster-metadata-coordination-zookeeper-kraft-and-alternatives)
 - [AWS Kinesis](#aws-kinesis)
 - [Lambda vs Kappa architecture](#lambda-vs-kappa-architecture)
@@ -47,6 +48,20 @@ Same three jobs (work queue, pub/sub, stream), different parts. None delete a me
 - **SQS** — you don’t run a broker. A **queue** is the only object (standard or FIFO). **MessageGroupId** is the FIFO order scope (like a key). **Visibility timeout** hides a received message until delete or timeout. Pub/sub is **not** SQS: put **SNS** in front and subscribe many queues.
 - **RabbitMQ** — the **broker** is the node/cluster. Producer publishes to an **exchange** (fanout / direct / topic). A **binding** + **routing key** copies into one or more **queues**. Consumers compete on a queue; unacked messages stay until `ack`.
 - **Kafka** — a **broker** is one server in the cluster (often **MSK**). A **topic** is a named log, split into **partitions** (ordered, append-only shards — the parallelism unit). A **key** is hashed to a partition: same key → same partition → order. A **consumer group** splits partitions among its members (one member per partition). Another group reads the same log with its own **offsets**.
+
+### Kafka partitions — what they give and take away
+
+| Give | Take away |
+|------|-----------|
+| **Parallelism** — scale consumers ≈ number of partitions (one consumer per partition per group) | **More partitions ≠ free** — more open files, more replication traffic, slower rebalances |
+| **Per-key ordering** — same key → same partition → ordered | **No global order** across the topic |
+| **Independent progress** — lag on one partition doesn’t stop others | **Stuck offset blocks that partition** — later messages for those keys wait |
+| **Replay / retention** — re-read history | **Hot partition** — skewed keys pin load on one shard (see [Hot partitions](./scaling.md#hot-partitions)) |
+| Fan-out via **consumer groups** | Rebalance storms when membership flaps |
+
+**Hot partition:** one key (celebrity `userId`, single `tenantId`) hashes to one partition → that consumer/broker melts while others idle. Mitigate: better key design, salt hot keys, separate “hot” topic, or break into sub-keys when order allows.
+
+**Interview line:** “Partitions buy parallel consume and per-key order; they cost rebalance complexity, no global order, and skew risk.”
 
 | | **SQS** | **RabbitMQ** | **Kafka** |
 |--|---------|--------------|-----------|

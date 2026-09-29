@@ -14,6 +14,8 @@ Caching is easy to draw and easy to get wrong. Interviewers probe **failures and
 - [Cache penetration](#cache-penetration)
 - [Cache invalidation](#cache-invalidation)
 - [Eviction policies](#eviction-policies)
+- [Eviction vs invalidation](#eviction-vs-invalidation)
+- [Hit rate crashed overnight (first 10 minutes)](#hit-rate-crashed-overnight-first-10-minutes)
 - [Other cache topics worth knowing](#other-cache-topics-worth-knowing)
 
 ---
@@ -111,6 +113,35 @@ When memory is full (or TTL fires):
 Interview Redis knobs: `maxmemory-policy` (`allkeys-lru`, `volatile-lru`, `noeviction`, …).
 
 Often combine: **TTL for freshness** + **LRU for memory pressure**. See eviction notes in the [caching diagram](../diagrams/distributed-caching-system/distributed-caching-system.excalidraw).
+
+---
+
+## Eviction vs invalidation
+
+| | **Invalidation** | **Eviction** |
+|--|------------------|--------------|
+| **Trigger** | **Your write** (or explicit purge) — data changed / must not be served | **Memory / TTL pressure** — redis needs space or key expired |
+| **Intent** | Correctness / freshness | Capacity |
+| **Example** | `DEL user:42` after profile update | LRU drops cold keys; TTL expires session |
+
+**Interview line:** “Invalidation is product logic (we chose to drop a key). Eviction is the cache protecting itself under memory/TTL.”
+
+---
+
+## Hit rate crashed overnight (first 10 minutes)
+
+**Prompt:** cache hit rate 95% → 60% overnight. What do you do in the first 10 minutes?
+
+1. **Confirm the metric** — which cache cluster/keyspace? Hit rate vs miss rate vs `evicted_keys` / `expired_keys` / OOM.
+2. **Traffic shape** — QPS spike? New traffic mix (bot crawl, deploy of new endpoints)? Compare miss QPS to DB QPS.
+3. **Eviction storm?** — `used_memory` near max; `evicted_keys` climbing → raise memory / fix big keys / tune `maxmemory-policy`; find who filled Redis.
+4. **Mass expiry?** — many keys created with the **same TTL** overnight job → avalanche; jitter TTLs; stagger warm.
+5. **Bad deploy / key change?** — new key schema (`user:42` → `user:v2:42`) → cold cache; rollback or dual-read warm.
+6. **Invalidation bug** — too-aggressive `FLUSH` / broad `DEL` pattern / pub-sub wipe.
+7. **Dependency** — Redis failover emptied node; clients pounding DB → shed load / serve stale if safe.
+8. **Stabilize** — rate-limit miss path to DB; warm hottest keys; page owners of overnight jobs.
+
+**Interview line:** “Separate eviction vs expiry vs key-schema miss vs intentional invalidation — metrics tell which in minutes.”
 
 ---
 

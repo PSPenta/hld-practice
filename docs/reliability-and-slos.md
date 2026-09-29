@@ -15,6 +15,8 @@ Staff-level designs talk about **what “good” means**, how you fail, and how 
 - [Load shedding & graceful degradation](#load-shedding-graceful-degradation)
 - [Multi-AZ vs multi-region](#multi-az-vs-multi-region)
 - [Exponential backoff](#exponential-backoff)
+- [Retries make outages worse](#retries-make-outages-worse)
+- [p99 up, errors flat (post-deploy)](#p99-up-errors-flat-post-deploy)
 - [Backpressure](#backpressure)
 - [Reliability in fintech (Razorpay-class)](#reliability-in-fintech-razorpay-class)
 
@@ -161,6 +163,53 @@ Example: base 100ms → 100, 200, 400, 800… capped at e.g. 30s, with **full or
 - **DLQ** after N failures — see [Messaging](./messaging-and-pipelines.md)  
 
 **Interview line:** “Retries with exponential backoff **and jitter**; idempotent; capped attempts; then DLQ.”
+
+---
+
+## Retries make outages worse
+
+**Why:** When a dependency is slow/down, every client retries → **load multiplies** (retry amplification). Thread/connection pools fill; healthy paths share the same process; cascading failure. Synchronized retries (no jitter) arrive as a thundering herd the moment the dependency flickers back.
+
+**What jitter is for:** randomize retry delay so clients don’t fire in lockstep after the same failure.
+
+**What we do:**
+
+1. **Timeouts** — fail one attempt fast  
+2. **Exponential backoff + jitter** — space retries  
+3. **Cap attempts** — then fail / DLQ  
+4. **Circuit breaker** — stop calling when error/slow rate is high  
+5. **Bulkheads** — isolate pools so one dependency can’t exhaust the process  
+6. **Idempotency** — retries must be safe  
+7. **Shed / degrade** — 503 at edge rather than melt the core  
+
+Detail: [Circuit breaker](./core-concepts.md#circuit-breaker).
+
+---
+
+## p99 up, errors flat (post-deploy)
+
+**Prompt:** After a deploy, **p99 latency doubled**, **error rate unchanged**. What do you look at?
+
+Errors flat ⇒ requests still succeed — something got **slower**, not crashing.
+
+| Check (first pass) | Looking for |
+|--------------------|-------------|
+| **Which endpoints / tenants** | Global vs one route |
+| **Saturation** | CPU, memory, GC, thread pool, DB connections, Redis latency |
+| **Dependency latency** | Downstream p99 (DB, cache, PSP) — your app waits longer |
+| **N+1 / extra fan-out** | New code path more calls per request |
+| **Locks / contention** | DB wait events, Redis slowlog |
+| **Cold cache / config** | Miss storm after rollout |
+| **Canary vs baseline** | Compare new RS pods to old |
+
+### What if it is only one pod?
+
+1. Confirm with per-pod metrics (CPU, mem, GC, in-flight).  
+2. **Cordon / remove from Service** (fail readiness or delete pod) — if fleet p99 recovers, that pod was toxic (noisy neighbor, stuck GC, bad node, connection leak).  
+3. Capture heap/thread dump before kill if needed.  
+4. Check node pressure, CNI, and whether HPA/LB kept sending it traffic.
+
+**Interview line:** “Flat errors + high p99 = slow path. Slice by pod and dependency; one bad pod is a common canary find.”
 
 ---
 

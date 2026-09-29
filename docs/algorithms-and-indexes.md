@@ -17,6 +17,7 @@ Probabilistic structures, geo indexes, **proximity / keyword / semantic search**
 - [Choosing proximity vs keyword vs semantic](#choosing-proximity-vs-keyword-vs-semantic)
 - [Why a query with an index can still be slow](#why-a-query-with-an-index-can-still-be-slow)
   - [How to prove which reason it is](#how-to-prove-which-reason-it-is)
+- [Merge overlapping intervals](#merge-overlapping-intervals)
 - [Other index / structure prerequisites](#other-index-structure-prerequisites)
 
 ---
@@ -341,6 +342,33 @@ Having an index ≠ the planner uses it well (or at all).
 **Interview line:** “I’d not argue index design from intuition — `EXPLAIN ANALYZE` shows whether we skip the index, thrash on lookups, or mis-estimate rows.”
 
 RAG / AI retrieval failure modes: [AI systems](./ai-systems.md).
+
+---
+
+## Merge overlapping intervals
+
+**Problem:** given `(start, end)` intervals, merge overlaps → minimal disjoint list.
+
+**Batch algorithm**
+
+1. Sort by `start` ascending.  
+2. Keep a `current` interval; for each next: if `next.start ≤ current.end`, extend `current.end = max(current.end, next.end)`; else push `current` and start new.  
+3. Push the last `current`.
+
+Time **O(n log n)** (sort), space **O(n)** output.
+
+### What changes if intervals arrive as a stream?
+
+You **cannot** sort the whole set up front.
+
+| Approach | Idea |
+|----------|------|
+| **Buffer + periodic merge** | Window of arrivals; merge when window closes (approx if late events) |
+| **Online structure** | Keep sorted active intervals (tree/set by start); on insert, find overlap neighbors and merge in **O(log n)** |
+| **If stream is sorted by start** | Same linear scan as batch — merge on the fly |
+| **If out-of-order** | Need watermark / late-event policy (like stream processors) |
+
+**Interview line:** “Batch = sort then sweep. Stream = either assume ordered, or maintain a searchable set of open intervals / windowed merge.”
 
 ---
 
