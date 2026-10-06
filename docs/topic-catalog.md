@@ -212,6 +212,19 @@
   - [Keep LLM out of the path but still use it](./ai-systems.md#keep-llm-out-of-the-path-but-still-use-it)
   - [LLM cost doubled — levers](./ai-systems.md#llm-cost-doubled--levers)
 
+- **[AI Harnesses & Harness Engineering](./ai-harnesses.md)**
+  - [What is an AI harness?](./ai-harnesses.md#what-is-an-ai-harness)
+  - [Harness engineering (discipline)](./ai-harnesses.md#harness-engineering-discipline)
+  - [Harness vs model vs RAG vs “agent”](./ai-harnesses.md#harness-vs-model-vs-rag-vs-agent)
+  - [The agent loop (what you draw)](./ai-harnesses.md#the-agent-loop-what-you-draw)
+  - [Harness building blocks](./ai-harnesses.md#harness-building-blocks)
+  - [Policy & safety (non-negotiables)](./ai-harnesses.md#policy--safety-non-negotiables)
+  - [Eval & graders (make it measurable)](./ai-harnesses.md#eval--graders-make-it-measurable)
+  - [Observability & cost](./ai-harnesses.md#observability--cost)
+  - [Where it sits in a product HLD](./ai-harnesses.md#where-it-sits-in-a-product-hld)
+  - [Interview pitfalls](./ai-harnesses.md#interview-pitfalls)
+  - [Agentic interview rounds (human as tech lead)](./ai-harnesses.md#agentic-interview-rounds-human-as-tech-lead)
+
 - **[Caching (Deep Dive)](./caching.md)**
   - [Quick recap of patterns](./caching.md#quick-recap-of-patterns) — when cache-aside vs write-through
   - [Cache stampede (a.k.a. dogpile / thundering herd)](./caching.md#cache-stampede-aka-dogpile-thundering-herd)

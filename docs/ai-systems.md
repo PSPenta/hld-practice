@@ -2,7 +2,7 @@
 
 Interview depth for shipping LLM features: retrieval quality, eval, and **when the model must leave the request path**.
 
-← [README](../README.md) · [Docs index](./README.md) · Related: [Data stores — KB vs Vector DB](./data-stores.md#knowledge-base-vs-vector-db) · [Algorithms — semantic search](./algorithms-and-indexes.md#semantic-search) · [Services vs workers](./service-architecture.md#services-vs-workers)
+← [README](../README.md) · [Docs index](./README.md) · Related: [Data stores — KB vs Vector DB](./data-stores.md#knowledge-base-vs-vector-db) · [Algorithms — semantic search](./algorithms-and-indexes.md#semantic-search) · [Services vs workers](./service-architecture.md#services-vs-workers) · [AI harnesses](./ai-harnesses.md)
 
 ---
 
@@ -224,3 +224,11 @@ Cost ≈ **tokens in × tokens out × price × QPS** (plus embedding/rerank call
 Usually **caching identical/near-identical requests** and **dropping unused context**, then **model routing** (small model default). Cutting retrieval/context blindly or forcing a tiny model on hard tasks hurts quality most.
 
 **Interview line:** “I’d check token volume vs QPS first — cache and trim before I sacrifice the model.”
+
+---
+
+## See also
+
+- [AI Harnesses & Harness Engineering](./ai-harnesses.md) — agent loop, policy, graders, agentic interview rounds
+- [Knowledge base vs Vector DB](./data-stores.md#knowledge-base-vs-vector-db)
+- [Semantic search](./algorithms-and-indexes.md#semantic-search)

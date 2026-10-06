@@ -51,6 +51,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 |-----|-----|
 | [Data stores](./data-stores.md) | ACID/BASE, SQL/NoSQL, OLAP, TiDB/TSDB, LSM, Vector DB, **DB deploy (region / read vs write)** |
 | [AI systems](./ai-systems.md) | **RAG prod failures**, retrieval vs gen **eval**, **LLM off request path** |
+| [AI harnesses](./ai-harnesses.md) | **Harness engineering**, agent loop, tools/policy/graders, agentic interview rounds |
 | [Caching](./caching.md) | Stampede, avalanche, penetration, invalidation, eviction, **cache-aside vs write-through** |
 | [Messaging & pipelines](./messaging-and-pipelines.md) | Queue vs pub/sub, Kafka/Rabbit/SQS, **ZK→KRaft**, **Kinesis**, **Lambda vs Kappa**, WAL, CDC, Spark/Flink |
 | [Algorithms & indexes](./algorithms-and-indexes.md) | Bloom, geo, **proximity / keyword (ES) / semantic**, **cursor vs offset**, **why index still slow + EXPLAIN**, hash vs encrypt |
@@ -101,6 +102,7 @@ You are ready for a strong round when you can, without notes:
 - [ ] For payments: **idempotency, ledger, PCI scope, reconciliation**  
 - [ ] RAG: name **what breaks first** and how you **eval retrieval vs generation**  
 - [ ] Say when **LLM leaves the request path** (async / precompute)  
+- [ ] Agent/harness: **tools + validate + stop budget + grader** (not a magic “Agent” box)  
 - [ ] Defend MVP vs v2 and **cost** of the expensive component  
 
 Diagrams in this repo are practice keys — not cheat sheets to memorize box-for-box.
