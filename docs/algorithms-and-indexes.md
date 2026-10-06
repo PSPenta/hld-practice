@@ -13,6 +13,7 @@ Probabilistic structures, geo indexes, **proximity / keyword / semantic search**
 - [Geo-spatial indexes](#geo-spatial-indexes)
 - [Proximity search (“nearby”)](#proximity-search-nearby)
 - [Keyword search & inverted indexes (Elasticsearch)](#keyword-search-inverted-indexes-elasticsearch)
+- [Cursor vs offset (paginated queries)](#cursor-vs-offset-paginated-queries)
 - [Semantic search](#semantic-search)
 - [Choosing proximity vs keyword vs semantic](#choosing-proximity-vs-keyword-vs-semantic)
 - [Why a query with an index can still be slow](#why-a-query-with-an-index-can-still-be-slow)
@@ -243,6 +244,65 @@ That’s when you add **semantic** (next) or synonym lists / query rewriting.
 - Ignoring analyze asymmetry (index analyzer ≠ search analyzer → zero hits)
 
 **Interview line:** “Inverted index maps token → docs; ES shards that index. BM25 ranks; filters constrain. Source of truth stays in OLTP; we index via CDC/outbox.”
+
+---
+
+## Cursor vs offset (paginated queries)
+
+**Interview snapshot**
+- **What:** Two ways to ask for “the next page” of a sorted result set.
+- **Why:** Deep `offset` pages get slow and unstable; cursors stay cheap.
+- **Trade-off:** Offset is simple (jump to page N); cursor is efficient but usually next/prev only (no random page jump).
+- **Example:** Search page 1–5 → `limit` + `offset` OK; infinite scroll / page 500 → cursor / `search_after`.
+
+### Offset / limit
+
+```text
+GET /search?q=shoes&limit=10&offset=40   → skip 40, return next 10
+```
+
+| Pros | Cons |
+|------|------|
+| Easy UX (“go to page 7”) | Engine still ranks/skips `offset` rows → **deep pages cost O(offset)** |
+| Stateless: any page from URL alone | Inserts/deletes between pages → **duplicates or skips** |
+| Fine for small catalogs / first pages | Search + sharded indexes amplify skip cost |
+
+**SQL shape:** `… ORDER BY created_at DESC LIMIT 10 OFFSET 10000` — same pain on large tables.
+
+### Cursor / keyset / `search_after`
+
+Client gets an opaque **cursor** (or last sort key + id) from page *N*; page *N+1* asks for “rows **after** that point.”
+
+```text
+GET /search?q=shoes&limit=10
+→ { items, next_cursor: "eyJzY29yZSI6…", … }
+
+GET /search?q=shoes&limit=10&cursor=eyJzY29yZSI6…
+→ next 10 after that position
+```
+
+| Pros | Cons |
+|------|------|
+| Cost ~ **O(limit)** per page — stable at depth | Harder to jump to arbitrary page number |
+| Stable under inserts if sort key is unique (tie-break with `id`) | Cursor is opaque; must not forge/tamper (sign or server-side) |
+| ES: **`search_after`** with same sort as query | Changing sort/filters invalidates old cursors |
+
+**SQL keyset shape:** `WHERE (created_at, id) < ($last_ts, $last_id) ORDER BY created_at DESC, id DESC LIMIT 10` — needs a matching index.
+
+**Search (ES/OpenSearch):** sort by `_score` then `_id` (or a unique field); next page uses `search_after: [lastScore, lastId]` — not `from`/`offset` for deep pages.
+
+### When to use which
+
+| Situation | Prefer |
+|-----------|--------|
+| Admin UI “page 1…10”, small result sets | **Offset** (cap max offset, e.g. 500–1000) |
+| Infinite scroll, mobile feed, deep search | **Cursor** |
+| Large SQL lists (orders, events) | **Keyset / cursor** |
+| “Jump to page 50” is a hard product requirement | Offset with **hard cap**, or accept cost |
+
+**Interview line:** “Offset for early pages and simple UX; cursor/`search_after`/keyset for deep pagination so p99 doesn’t die on skip. Tie-break sort with a unique id so pages don’t drift.”
+
+See search board: [Large Scale Search](../diagrams/large-scale-search-system/large-scale-search-system.excalidraw). API contracts: [Service architecture](./service-architecture.md#api-contracts-other-teams-depend-on).
 
 ---
 

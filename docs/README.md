@@ -53,7 +53,7 @@ Study path aimed at **SDE3 / Staff** system-design interviews (FAANG-style + fin
 | [AI systems](./ai-systems.md) | **RAG prod failures**, retrieval vs gen **eval**, **LLM off request path** |
 | [Caching](./caching.md) | Stampede, avalanche, penetration, invalidation, eviction, **cache-aside vs write-through** |
 | [Messaging & pipelines](./messaging-and-pipelines.md) | Queue vs pub/sub, Kafka/Rabbit/SQS, **ZK→KRaft**, **Kinesis**, **Lambda vs Kappa**, WAL, CDC, Spark/Flink |
-| [Algorithms & indexes](./algorithms-and-indexes.md) | Bloom, geo, **proximity / keyword (ES) / semantic**, **why index still slow + EXPLAIN**, hash vs encrypt |
+| [Algorithms & indexes](./algorithms-and-indexes.md) | Bloom, geo, **proximity / keyword (ES) / semantic**, **cursor vs offset**, **why index still slow + EXPLAIN**, hash vs encrypt |
 
 ### D. Reliability & correctness (Staff differentiator)
 

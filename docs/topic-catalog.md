@@ -255,6 +255,7 @@
     - [Quadtree / R-tree (concepts)](./algorithms-and-indexes.md#quadtree-r-tree-concepts)
   - [Proximity search (“nearby”)](./algorithms-and-indexes.md#proximity-search-nearby)
   - [Keyword search & inverted indexes (Elasticsearch)](./algorithms-and-indexes.md#keyword-search-inverted-indexes-elasticsearch)
+  - [Cursor vs offset (paginated queries)](./algorithms-and-indexes.md#cursor-vs-offset-paginated-queries)
   - [Semantic search](./algorithms-and-indexes.md#semantic-search)
   - [Choosing proximity vs keyword vs semantic](./algorithms-and-indexes.md#choosing-proximity-vs-keyword-vs-semantic)
   - [Why a query with an index can still be slow](./algorithms-and-indexes.md#why-a-query-with-an-index-can-still-be-slow)

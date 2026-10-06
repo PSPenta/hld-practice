@@ -81,7 +81,7 @@ Client → API Service → DB
 
 1. **Resource model + operations** (what exists; not every field yet)  
 2. **Request/response shape** — required vs optional; types; error model  
-3. **Authn/z**, idempotency for creates/money, pagination, rate limits  
+3. **Authn/z**, idempotency for creates/money, **pagination** (offset vs cursor — see [Cursor vs offset](./algorithms-and-indexes.md#cursor-vs-offset-paginated-queries)), rate limits  
 4. **SLOs** consumers will depend on (latency / availability)
 
 Fields matter, but **compatibility and failure behavior** matter more for other teams.

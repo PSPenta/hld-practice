@@ -175,7 +175,7 @@ Related practice already in repo: [Notification System](./diagrams/notification-
 | Distributed Queue | ✅ | [`diagrams/distributed-queue/`](./diagrams/distributed-queue/) |
 | BookMyShow / Ticket Booking | ✅ | [`diagrams/bookmyshow-hld/`](./diagrams/bookmyshow-hld/) |
 | Distributed Caching | ⚠️ | [`diagrams/distributed-caching-system/`](./diagrams/distributed-caching-system/) |
-| Large Scale Search | ⚠️ | [`diagrams/large-scale-search-system/`](./diagrams/large-scale-search-system/) |
+| Large Scale Search | ✅ | [`diagrams/large-scale-search-system/`](./diagrams/large-scale-search-system/) |
 | Logging and Monitoring | ⚠️ | [`diagrams/logging-and-monitoring-system/`](./diagrams/logging-and-monitoring-system/) |
 | WhatsApp / Chat | ⚠️ | [`diagrams/whatsapp-hld/`](./diagrams/whatsapp-hld/) |
 | Load Balancer | ⚠️ | [`diagrams/load-balancer-hld/`](./diagrams/load-balancer-hld/) |
@@ -183,7 +183,7 @@ Related practice already in repo: [Notification System](./diagrams/notification-
 | Rate Limiter | ❌ | — |
 | Uber / Ride Sharing | ❌ | — |
 | Proximity Search / Nearby | ❌ | — ([notes](./docs/algorithms-and-indexes.md#proximity-search-nearby)) |
-| Keyword / ES / Semantic Search | ❌ | — ([notes](./docs/algorithms-and-indexes.md#choosing-proximity-vs-keyword-vs-semantic)) |
+| Keyword / ES / Semantic Search | ✅ | [`diagrams/large-scale-search-system/`](./diagrams/large-scale-search-system/) · [notes](./docs/algorithms-and-indexes.md#choosing-proximity-vs-keyword-vs-semantic) |
 | YouTube / Video Streaming | ❌ | — |
 | Dropbox / File Storage | ❌ | — |
 | Google Docs / Collaborative Editor | ❌ | — |
