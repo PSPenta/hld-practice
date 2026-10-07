@@ -1,3 +1,7 @@
 {
-  "recommendations": ["pomdtr.excalidraw-editor"]
+  "recommendations": [
+    "pomdtr.excalidraw-editor",
+    "streetsidesoftware.code-spell-checker",
+    "eamodio.gitlens"
+  ]
 }

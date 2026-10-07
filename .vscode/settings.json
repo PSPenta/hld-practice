@@ -1,4 +1,5 @@
 {
+  "extensions.ignoreRecommendations": false,
   "workbench.editorAssociations": {
     "*.excalidraw": "editor.excalidraw",
     "*.excalidraw.json": "editor.excalidraw",
